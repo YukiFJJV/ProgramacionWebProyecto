@@ -1,14 +1,113 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Página-1" id="_E0Ga8bCXFVlt3H1l0bP">
-    <mxGraphModel dx="431" dy="288" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1745" dy="1300" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="nihwKfIyaz7HHDk0OPjB-1" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="Empresa" vertex="1">
-          <mxGeometry height="120" width="160" x="333" y="525" as="geometry" />
+        <mxCell id="nihwKfIyaz7HHDk0OPjB-1" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="tenant" vertex="1">
+          <mxGeometry height="110" width="280" x="273" y="580" as="geometry" />
         </mxCell>
-        <mxCell id="nihwKfIyaz7HHDk0OPjB-2" parent="nihwKfIyaz7HHDk0OPjB-1" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="+Attribute1&#xa;+Attribute2&#xa;+Attribute3" vertex="1">
-          <mxGeometry height="70" width="160" y="50" as="geometry" />
+        <mxCell id="nihwKfIyaz7HHDk0OPjB-2" parent="nihwKfIyaz7HHDk0OPjB-1" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="tenant_id: UUID PK&lt;div&gt;name: VARCHAR(100) NN UQ&lt;/div&gt;&lt;div&gt;active: BOOLEAN NN&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-3" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;exitX=0;exitY=0.25;exitDx=0;exitDy=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;curved=0;" target="nihwKfIyaz7HHDk0OPjB-2">
+          <mxGeometry relative="1" x="-0.1824" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="455" />
+              <mxPoint x="220" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-1" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="user" vertex="1">
+          <mxGeometry height="150" width="280" x="273" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-2" parent="b7tV1xdih_ZqNZkHhnvg-1" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="user_id: UUID PK&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;tenant_&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;id&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;email: VARCHAR UQ&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;password_hash: VARCHAR&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;name: VARCHAR&lt;/span&gt;&lt;/div&gt;&lt;div&gt;role: ENUM&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-4" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="psychologist" vertex="1">
+          <mxGeometry height="140" width="280" x="470" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-5" parent="b7tV1xdih_ZqNZkHhnvg-4" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;psychologist_&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;id&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;: UUID PK&lt;/span&gt;&lt;/div&gt;user_id: UUID FK&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;tenant_&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;id&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;license_number: VARCHAR(6) NN&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;specialty_id: UUID FK&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-7" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;exitX=0.997;exitY=0.363;exitDx=0;exitDy=0;exitPerimeter=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;curved=0;" target="nihwKfIyaz7HHDk0OPjB-2">
+          <mxGeometry relative="1" x="-0.0233" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="262.6" />
+              <mxPoint x="790" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-10" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.001;entryY=0.125;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;curved=0;" target="b7tV1xdih_ZqNZkHhnvg-2">
+          <mxGeometry relative="1" x="-0.3448" as="geometry">
+            <Array as="points">
+              <mxPoint x="779.2" y="252.5" />
+              <mxPoint x="779.2" y="442.5" />
+            </Array>
+            <mxPoint x="490" y="260" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-11" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="patient" vertex="1">
+          <mxGeometry height="140" width="280" x="114" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-12" parent="b7tV1xdih_ZqNZkHhnvg-11" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;patient_&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;id&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;: UUID PK&lt;/span&gt;&lt;/div&gt;user_id: UUID FK&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;tenant_&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;id&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;birth_date: DATE NN DF CURRENT_DATE&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;phone_number: CHAR(8)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-13" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.001;entryY=0.133;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;exitX=-0.001;exitY=0.323;exitDx=0;exitDy=0;exitPerimeter=0;endArrow=none;endFill=0;curved=0;" target="b7tV1xdih_ZqNZkHhnvg-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-14" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;startArrow=classic;startFill=1;curved=0;" target="nihwKfIyaz7HHDk0OPjB-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="275" />
+              <mxPoint x="20" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-15" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="specialty" vertex="1">
+          <mxGeometry height="100" width="280" x="827" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-16" parent="b7tV1xdih_ZqNZkHhnvg-15" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;specialty_id: UUID PK&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;specialty_name: VARCHAR NN UQ&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-18" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;curved=0;" target="b7tV1xdih_ZqNZkHhnvg-16">
+          <mxGeometry relative="1" x="0.2851" as="geometry">
+            <Array as="points">
+              <mxPoint x="798.5" y="310" />
+              <mxPoint x="798.5" y="242.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-19" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="work_schedule" vertex="1">
+          <mxGeometry height="140" width="280" x="467" y="-10" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-20" parent="b7tV1xdih_ZqNZkHhnvg-19" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;schedule_id: UUID PK&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;psychologist_id: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;week_day: ENUM&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;starts_at: TIME NN&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;ends_at: TIME NN&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-21" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.004;entryY=0.18;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;exitX=0.004;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=0;endArrow=none;endFill=0;startArrow=classic;startFill=1;curved=0;" target="b7tV1xdih_ZqNZkHhnvg-5">
+          <mxGeometry relative="1" x="0.0977" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="69.7" />
+              <mxPoint x="440" y="246.2" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-22" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="appointment" vertex="1">
+          <mxGeometry height="160" width="280" x="-7" y="-10" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-23" parent="b7tV1xdih_ZqNZkHhnvg-22" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;appointment_id: UUID PK&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;psychologist_id: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;patient_id: UUID FK&lt;/span&gt;&lt;/div&gt;&lt;div&gt;date_at: DATE NN&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;starts_at: TIME NN&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;ends_at: TIME NN&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;risk_score: SMALLINT NN CK (0&amp;lt;=risk_score&amp;lt;4)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-24" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.161;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;curved=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="b7tV1xdih_ZqNZkHhnvg-5">
+          <mxGeometry relative="1" x="0.0749" as="geometry">
+            <Array as="points">
+              <mxPoint x="423.7" y="67.5" />
+              <mxPoint x="423.7" y="244.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b7tV1xdih_ZqNZkHhnvg-25" edge="1" parent="1" source="b7tV1xdih_ZqNZkHhnvg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.002;entryY=0.141;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;exitX=0;exitY=0.382;exitDx=0;exitDy=0;exitPerimeter=0;curved=0;" target="b7tV1xdih_ZqNZkHhnvg-12">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
