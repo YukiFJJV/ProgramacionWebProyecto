@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Página-1" id="_E0Ga8bCXFVlt3H1l0bP">
-    <mxGraphModel dx="1888" dy="1402" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1853" dy="1298" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -149,8 +149,8 @@
         <mxCell id="tyGbunsfy96h858tn99q-12" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.004;entryY=0.062;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;curved=0;" target="tyGbunsfy96h858tn99q-6">
           <mxGeometry relative="1" x="-0.0028" as="geometry">
             <Array as="points">
-              <mxPoint x="113.4" y="250.7" />
-              <mxPoint x="54.6" y="250.7" />
+              <mxPoint x="113.4" y="246.9" />
+              <mxPoint x="54.6" y="246.9" />
               <mxPoint x="54.6" y="393.7" />
             </Array>
             <mxPoint x="113.37" y="244.09" as="sourcePoint" />
