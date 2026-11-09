@@ -11,3 +11,11 @@ Regla de negocio: Hay 4 niveles de importancia (risk_score)-> 0, 1, 2, 3
 Los niveles 1, 2, y 3 tienen que ser estrictamente asignados por el psicologo que atiende al paciente en la primera cita. Cuando el paciente agenda la cita por primera vez se le asigna automaticamente el valor 0. Luego de que el paciente no asista a citas psicologicas, después de 10 meses su nivel de atención baja automaticamente a 0 de nuevo, debido a que tiene que ser reevaluado.
 
 Regla de Negocio: El tiempo disponible de los psicologos se calcula en base a la tabla work_schedule; la cual indica qué horario de trabajo tiene el respectivo psicologo; y también, en base a la tabla appointmet; la cual es un registro de todas las citas realizadas con anterioridad y de las citas ocupadas actualmente.
+
+
+La creación de usuarios afiliados a una empresa a través un token
+La empresa se guarda hasta que ya se haya realizado el pago
+Funcionalidad para preguntar a un independiente si quiere cambiar a cuenta de empresa
+solo se puede posponer la cita una vez
+Crear contrato para los psicólogos para que trabajen en el horario de la empresa
+Para cambiar de psicólogo debe haber completado al menos una cita con él.
