@@ -13,9 +13,9 @@ Los niveles 1, 2, y 3 tienen que ser estrictamente asignados por el psicologo qu
 Regla de Negocio: El tiempo disponible de los psicologos se calcula en base a la tabla work_schedule; la cual indica qué horario de trabajo tiene el respectivo psicologo; y también, en base a la tabla appointmet; la cual es un registro de todas las citas realizadas con anterioridad y de las citas ocupadas actualmente.
 
 
-La creación de usuarios afiliados a una empresa a través un token
-La empresa se guarda hasta que ya se haya realizado el pago
-Funcionalidad para preguntar a un independiente si quiere cambiar a cuenta de empresa
-solo se puede posponer la cita una vez
-Crear contrato para los psicólogos para que trabajen en el horario de la empresa
-Para cambiar de psicólogo debe haber completado al menos una cita con él.
+*La creación de usuarios afiliados a una empresa a través un token
+*La empresa se guarda hasta que ya se haya realizado el pago
+*Funcionalidad para preguntar a un independiente si quiere cambiar a cuenta de empresa
+*Solo se puede posponer la cita una vez
+*Crear contrato para los psicólogos para que trabajen en el horario de la empresa
+*Para cambiar de psicólogo debe haber completado al menos una cita con él.
