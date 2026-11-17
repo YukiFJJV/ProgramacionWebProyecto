@@ -1,0 +1,6 @@
+@PsyLink.API_HostAddress = http://localhost:5220
+
+GET {{PsyLink.API_HostAddress}}/api/psychologists
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PsyLink.API/PsyLink.API.csproj" />
+  <Project Path="PsyLink.Application/PsyLink.Application.csproj" />
+  <Project Path="PsyLink.Domain/PsyLink.Domain.csproj" />
+  <Project Path="PsyLink.Infrastructure/PsyLink.Infrastructure.csproj" />
+</Solution>
