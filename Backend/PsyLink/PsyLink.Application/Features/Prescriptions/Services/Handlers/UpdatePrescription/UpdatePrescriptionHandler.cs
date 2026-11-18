@@ -35,18 +35,19 @@ public sealed class UpdatePrescriptionHandler(
         {
             var medication = await medicationRepository.GetByIdAsync(medicationId, cancellationToken)
                 ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el medicamento {medicationId}.");
-            prescription.MedicationId = medication.MedicationId;
-            prescription.Medication = medication;
+            prescription.ChangeMedication(medication.MedicationId);
         }
 
         if (request.Update.Dosage is not null)
         {
-            prescription.Dosage = request.Update.Dosage.Trim();
+            prescription.Update(
+                request.Update.Dosage.Trim(),
+                prescription.Quantity ?? 0);
         }
 
         if (request.Update.Quantity is int quantity)
         {
-            prescription.Quantity = quantity;
+            prescription.Update(prescription.Dosage, quantity);
         }
 
         await prescriptionRepository.UpdateAsync(prescription, cancellationToken);

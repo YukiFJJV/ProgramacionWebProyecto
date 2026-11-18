@@ -89,8 +89,11 @@ public sealed class RescheduleAppointmentHandler(
         }
 
         appointment.Reschedule(dateAt, startsAt, endsAt);
-        appointment.PsychologistId = targetPsychologistId;
-        appointment.Psychologist = psychologist;
+        if (targetPsychologistId != appointment.PsychologistId)
+        {
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException(
+                "El cambio de psicólogo no está permitido en esta operación.");
+        }
 
         if (!await appointmentRepository.UpdateIfNoOverlapAsync(appointment, cancellationToken))
         {

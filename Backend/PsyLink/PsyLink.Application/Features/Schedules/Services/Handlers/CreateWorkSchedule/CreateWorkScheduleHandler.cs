@@ -37,16 +37,12 @@ public sealed class CreateWorkScheduleHandler(
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario se traslapa con otro bloque del psicólogo.");
         }
 
-        var schedule = new WorkSchedule
-        {
-            ScheduleId = Guid.NewGuid(),
-            PsychologistId = psychologist.PsychologistId,
-            TenantId = tenantId,
-            WeekDay = (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay,
-            StartsAt = request.Schedule.StartsAt,
-            EndsAt = request.Schedule.EndsAt,
-            Psychologist = psychologist
-        };
+        var schedule = WorkSchedule.Create(
+            psychologist.PsychologistId,
+            tenantId,
+            (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay,
+            request.Schedule.StartsAt,
+            request.Schedule.EndsAt);
         if (!await workScheduleRepository.AddIfNoOverlapAsync(schedule, cancellationToken))
         {
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario se traslapa con otro bloque del psicólogo.");

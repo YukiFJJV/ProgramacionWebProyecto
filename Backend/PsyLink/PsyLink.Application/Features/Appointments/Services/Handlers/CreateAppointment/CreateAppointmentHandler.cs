@@ -112,19 +112,13 @@ public sealed class CreateAppointmentHandler(
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");
         }
 
-        var appointment = new Appointment
-        {
-            AppointmentId = Guid.NewGuid(),
-            PsychologistId = psychologist.PsychologistId,
-            PatientId = patient.PatientId,
-            TenantId = tenantId.Value,
-            DateAt = input.DateAt,
-            StartsAt = input.StartsAt,
-            EndsAt = input.EndsAt,
-            Status = AppointmentStatus.Pending,
-            Psychologist = psychologist,
-            Patient = patient
-        };
+        var appointment = Appointment.Schedule(
+            psychologist.PsychologistId,
+            patient.PatientId,
+            tenantId.Value,
+            input.DateAt,
+            input.StartsAt,
+            input.EndsAt);
         if (!await appointmentRepository.AddIfNoOverlapAsync(appointment, cancellationToken))
         {
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");

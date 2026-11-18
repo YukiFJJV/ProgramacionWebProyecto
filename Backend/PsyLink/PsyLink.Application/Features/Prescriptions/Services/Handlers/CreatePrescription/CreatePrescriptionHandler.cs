@@ -31,16 +31,11 @@ public sealed class CreatePrescriptionHandler(
             ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException(
                 $"No se encontró el medicamento {request.Prescription.MedicationId}.");
 
-        var prescription = new Prescription
-        {
-            PrescriptionId = Guid.NewGuid(),
-            RecordId = record.RecordId,
-            MedicationId = medication.MedicationId,
-            Dosage = request.Prescription.Dosage.Trim(),
-            Quantity = request.Prescription.Quantity,
-            Record = record,
-            Medication = medication
-        };
+        var prescription = Prescription.Issue(
+            record.RecordId,
+            medication.MedicationId,
+            request.Prescription.Dosage?.Trim(),
+            request.Prescription.Quantity);
         await prescriptionRepository.AddAsync(prescription, cancellationToken);
         return PatientRecordDtoMapper.ToPrescription(prescription);
     }

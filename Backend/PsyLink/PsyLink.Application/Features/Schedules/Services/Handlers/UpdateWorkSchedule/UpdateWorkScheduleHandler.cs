@@ -37,9 +37,10 @@ public sealed class UpdateWorkScheduleHandler(
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario se traslapa con otro bloque del psicólogo.");
         }
 
-        schedule.WeekDay = (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay;
-        schedule.StartsAt = request.Schedule.StartsAt;
-        schedule.EndsAt = request.Schedule.EndsAt;
+        schedule.Update(
+            (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay,
+            request.Schedule.StartsAt,
+            request.Schedule.EndsAt);
 
         if (!await workScheduleRepository.UpdateIfNoOverlapAsync(schedule, cancellationToken))
         {
