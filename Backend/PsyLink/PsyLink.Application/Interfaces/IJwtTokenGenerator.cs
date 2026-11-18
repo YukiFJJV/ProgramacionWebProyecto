@@ -5,4 +5,5 @@ namespace PsyLink.Application.Interfaces;
 public interface IJwtTokenGenerator
 {
     string GenerateToken(User user);
+    int ExpirationSeconds { get; }
 }

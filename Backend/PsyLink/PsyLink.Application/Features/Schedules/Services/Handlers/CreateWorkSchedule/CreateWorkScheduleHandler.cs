@@ -28,7 +28,7 @@ public sealed class CreateWorkScheduleHandler(
         var overlapping = await workScheduleRepository.GetOverlappingAsync(
             psychologist.PsychologistId,
             tenantId,
-            request.Schedule.WeekDay,
+            (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay,
             request.Schedule.StartsAt,
             request.Schedule.EndsAt,
             cancellationToken: cancellationToken);
@@ -42,7 +42,7 @@ public sealed class CreateWorkScheduleHandler(
             ScheduleId = Guid.NewGuid(),
             PsychologistId = psychologist.PsychologistId,
             TenantId = tenantId,
-            WeekDay = request.Schedule.WeekDay,
+            WeekDay = (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay,
             StartsAt = request.Schedule.StartsAt,
             EndsAt = request.Schedule.EndsAt,
             Psychologist = psychologist
@@ -69,7 +69,7 @@ public sealed class CreateWorkScheduleHandler(
     {
         ScheduleId = schedule.ScheduleId,
         PsychologistId = schedule.PsychologistId,
-        WeekDay = schedule.WeekDay,
+        WeekDay = (PsyLink.Application.Features.Schedules.DTOs.WeekDay)(int)schedule.WeekDay,
         StartsAt = schedule.StartsAt,
         EndsAt = schedule.EndsAt
     };

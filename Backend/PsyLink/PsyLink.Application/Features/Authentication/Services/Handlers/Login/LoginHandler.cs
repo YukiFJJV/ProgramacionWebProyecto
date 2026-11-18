@@ -3,6 +3,7 @@ using MediatR;
 using PsyLink.Application.Features.Authentication.DTOs;
 using PsyLink.Application.Features.Authentication.Services.Commands;
 using PsyLink.Application.Interfaces;
+using PsyLink.Application.Features.Users.DTOs;
 
 namespace PsyLink.Application.Features.Authentication.Services.Handlers.Login;
 
@@ -25,12 +26,30 @@ public sealed class LoginHandler(
             throw new InvalidOperationException("El usuario no tiene un rol válido asignado.");
         }
 
+        var accessToken = tokenGenerator.GenerateToken(user);
+
         return new LoginResponseDto
         {
-            Token = tokenGenerator.GenerateToken(user),
+            Token = accessToken,
+            AccessToken = accessToken,
+            TokenType = "Bearer",
+            ExpiresIn = tokenGenerator.ExpirationSeconds,
             UserId = user.UserId,
             Role = user.Role.Name,
-            TenantId = user.TenantId
+            TenantId = user.TenantId,
+            User = new UserSessionDto
+            {
+                UserId = user.UserId,
+                TenantId = user.TenantId,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = new RoleResponseDto
+                {
+                    RoleId = user.Role.RoleId,
+                    Name = user.Role.Name
+                }
+            }
         };
     }
 }

@@ -1,6 +1,560 @@
 @PsyLink.API_HostAddress = http://localhost:5220
+@accessToken = replace-with-a-super-admin-token
+@adminAccessToken = replace-with-an-admin-token
+@patientAccessToken = replace-with-a-patient-token
+@psychologistAccessToken = replace-with-a-psychologist-token
+@roleId = 00000000-0000-0000-0000-000000000001
+@userId = 00000000-0000-0000-0000-000000000002
+@patientId = 00000000-0000-0000-0000-000000000003
+@psychologistId = 00000000-0000-0000-0000-000000000004
+@specialtyId = 00000000-0000-0000-0000-000000000005
+@scheduleId = 00000000-0000-0000-0000-000000000006
+@appointmentId = 00000000-0000-0000-0000-000000000007
+@recordId = 00000000-0000-0000-0000-000000000012
+@prescriptionId = 00000000-0000-0000-0000-000000000013
+@diagnosisId = 00000000-0000-0000-0000-000000000008
+@diagnosisStatusId = 00000000-0000-0000-0000-000000000011
+@laboratoryId = 00000000-0000-0000-0000-000000000009
+@ingredientId = 00000000-0000-0000-0000-000000000010
+@medicationId = 00000000-0000-0000-0000-000000000014
 
-GET {{PsyLink.API_HostAddress}}/api/psychologists
+### Login (HU-22)
+POST {{PsyLink.API_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "replace-with-a-valid-password"
+}
+
+### Register a tenant (HU-21)
+POST {{PsyLink.API_HostAddress}}/tenants
+Content-Type: application/json
+
+{
+  "name": "Acme Wellness",
+  "email": "contact@acme.example",
+  "rtn": "08011999123456",
+  "phoneNumber": "22334455"
+}
+
+### List tenants (HU-01; requires a SUPER_ADMIN bearer token)
+GET {{PsyLink.API_HostAddress}}/tenants?search=Acme&page=1&pageSize=20&sortBy=name&sortDirection=asc
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+### Get a tenant by ID (HU-01; requires a SUPER_ADMIN bearer token)
+GET {{PsyLink.API_HostAddress}}/tenants/{{tenantId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+### Update tenant data (HU-02; requires a SUPER_ADMIN bearer token)
+PUT {{PsyLink.API_HostAddress}}/tenants/{{tenantId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": null,
+  "active": false
+}
+
+###
+
+### List roles assignable by an administrator (excludes SUPER_ADMIN)
+GET {{PsyLink.API_HostAddress}}/roles
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Create a tenant user (replace roleId with an assignable role)
+POST {{PsyLink.API_HostAddress}}/users
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "email": "collaborator@example.com",
+  "password": "SecurePass123",
+  "firstName": "Ana",
+  "lastName": "Lopez",
+  "phoneNumber": "22334455",
+  "roleId": "{{roleId}}"
+}
+
+###
+
+### List users in the authenticated tenant
+GET {{PsyLink.API_HostAddress}}/users?search=Ana&page=1&pageSize=20&sortBy=firstName&sortDirection=asc
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Get a tenant user by ID (replace userId with an existing user)
+GET {{PsyLink.API_HostAddress}}/users/{{userId}}
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Update user data (partial update)
+PUT {{PsyLink.API_HostAddress}}/users/{{userId}}
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Ana Maria",
+  "active": false
+}
+
+###
+
+### Register a patient and account in one operation
+POST {{PsyLink.API_HostAddress}}/patients
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "user": {
+    "email": "patient@example.com",
+    "password": "SecurePass123",
+    "firstName": "Laura",
+    "lastName": "Martinez",
+    "phoneNumber": "22334456",
+    "roleId": "{{roleId}}"
+  },
+  "birthDate": "1995-06-15",
+  "description": "Alta de paciente"
+}
+
+###
+
+### List patients in the authenticated tenant
+GET {{PsyLink.API_HostAddress}}/patients?search=Laura&page=1&pageSize=20&sortBy=firstName&sortDirection=asc
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Get a patient profile by ID
+GET {{PsyLink.API_HostAddress}}/patients/{{patientId}}
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### List patients linked to the authenticated psychologist's appointments
+GET {{PsyLink.API_HostAddress}}/patients?search=Laura&page=1&pageSize=20&sortBy=firstName&sortDirection=asc
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Get a patient profile accessible to the authenticated psychologist
+GET {{PsyLink.API_HostAddress}}/patients/{{patientId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Update an authorized patient's profile
+PUT {{PsyLink.API_HostAddress}}/patients/{{patientId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "phoneNumber": null,
+  "description": "Perfil actualizado"
+}
+
+###
+
+### List diagnoses associated with an authorized patient
+GET {{PsyLink.API_HostAddress}}/patients/{{patientId}}/diagnoses
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Set the status of an authorized patient's diagnosis (notes must be null)
+PUT {{PsyLink.API_HostAddress}}/patients/{{patientId}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "statusId": "{{diagnosisStatusId}}",
+  "notes": null
+}
+
+###
+
+### List available diagnosis statuses
+GET {{PsyLink.API_HostAddress}}/diagnosis-statuses
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Register a psychologist in the authenticated tenant
+POST {{PsyLink.API_HostAddress}}/psychologists
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "user": {
+    "email": "psychologist@example.com",
+    "password": "SecurePass123",
+    "firstName": "Sofia",
+    "lastName": "Rivera",
+    "phoneNumber": "22334457",
+    "roleId": "{{roleId}}"
+  },
+  "specialtyId": "{{specialtyId}}",
+  "licenseNumber": "ABC123"
+}
+
+###
+
+### List psychologists in the authenticated tenant
+GET {{PsyLink.API_HostAddress}}/psychologists?search=Sofia&specialtyId={{specialtyId}}&availableOn=2026-12-01&page=1&pageSize=20&sortBy=lastName&sortDirection=asc
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Get a psychologist's professional profile
+GET {{PsyLink.API_HostAddress}}/psychologists/{{psychologistId}}
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### List psychologists visible to the authenticated psychologist
+GET {{PsyLink.API_HostAddress}}/psychologists?search=Sofia&page=1&pageSize=20&sortBy=lastName&sortDirection=asc
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Get a psychologist's profile as an authenticated psychologist
+GET {{PsyLink.API_HostAddress}}/psychologists/{{psychologistId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Get available slots for a psychologist (duration defaults to 60 minutes)
+GET {{PsyLink.API_HostAddress}}/psychologists/{{psychologistId}}/availability?dateFrom=2026-12-01&dateTo=2026-12-07&timezone=America%2FTegucigalpa
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### Create a specialty
+POST {{PsyLink.API_HostAddress}}/specialties
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "specialtyName": "Psicología clínica"
+}
+
+###
+
+### List specialties
+GET {{PsyLink.API_HostAddress}}/specialties
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### List specialties as a psychologist
+GET {{PsyLink.API_HostAddress}}/specialties
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Update a specialty name
+PUT {{PsyLink.API_HostAddress}}/specialties/{{specialtyId}}
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "specialtyName": "Terapia cognitivo-conductual"
+}
+
+###
+
+### Add a weekly schedule block to a psychologist
+POST {{PsyLink.API_HostAddress}}/psychologists/{{psychologistId}}/schedules
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "weekDay": "MONDAY",
+  "startsAt": "09:00:00",
+  "endsAt": "13:00:00"
+}
+
+###
+
+### List a psychologist's weekly schedules
+GET {{PsyLink.API_HostAddress}}/psychologists/{{psychologistId}}/schedules
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### Update a weekly schedule block
+PUT {{PsyLink.API_HostAddress}}/schedules/{{scheduleId}}
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "weekDay": "MONDAY",
+  "startsAt": "10:00:00",
+  "endsAt": "14:00:00"
+}
+
+###
+
+### List appointments within the current user's scope
+GET {{PsyLink.API_HostAddress}}/appointments?patientId={{patientId}}&psychologistId={{psychologistId}}&dateFrom=2026-12-01&dateTo=2026-12-31&page=1&pageSize=20&sortDirection=asc
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Book an appointment for the authenticated patient
+POST {{PsyLink.API_HostAddress}}/appointments
+Authorization: Bearer {{patientAccessToken}}
+Content-Type: application/json
+
+{
+  "psychologistId": "{{psychologistId}}",
+  "dateAt": "2026-12-15",
+  "startsAt": "09:00:00",
+  "endsAt": "10:00:00"
+}
+
+###
+
+### List only the authenticated patient's appointments
+GET {{PsyLink.API_HostAddress}}/appointments?dateFrom=2026-12-01&dateTo=2026-12-31&page=1&pageSize=20&sortDirection=asc
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### Book an appointment directly for an eligible high-risk patient as their psychologist
+POST {{PsyLink.API_HostAddress}}/appointments
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "psychologistId": "{{psychologistId}}",
+  "patientId": "{{patientId}}",
+  "dateAt": "2026-12-16",
+  "startsAt": "10:00:00",
+  "endsAt": "11:00:00"
+}
+
+###
+
+### List appointments accessible to the authenticated psychologist
+GET {{PsyLink.API_HostAddress}}/appointments?dateFrom=2026-12-01&dateTo=2026-12-31&page=1&pageSize=20&sortDirection=asc
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Create a clinical record for a patient with an active care relationship
+POST {{PsyLink.API_HostAddress}}/records
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "patientId": "{{patientId}}",
+  "appointmentId": "{{appointmentId}}",
+  "riskScore": 2
+}
+
+###
+
+### Get a patient's clinical record by patient ID
+GET {{PsyLink.API_HostAddress}}/patients/{{patientId}}/record
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Get a clinical record by record ID
+GET {{PsyLink.API_HostAddress}}/records/{{recordId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Update the risk score on a clinical record
+PATCH {{PsyLink.API_HostAddress}}/records/{{recordId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "riskScore": 1
+}
+
+###
+
+### Associate a diagnosis with a clinical record or update its notes
+PUT {{PsyLink.API_HostAddress}}/records/{{recordId}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "notes": "Notas clínicas asociadas al diagnóstico."
+}
+
+###
+
+### Remove a diagnosis association from a clinical record
+DELETE {{PsyLink.API_HostAddress}}/records/{{recordId}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{psychologistAccessToken}}
+
+###
+
+### Add a medication prescription to a clinical record
+POST {{PsyLink.API_HostAddress}}/records/{{recordId}}/prescriptions
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "medicationId": "{{medicationId}}",
+  "dosage": "1 tableta cada 8 horas",
+  "quantity": 30
+}
+
+###
+
+### Update a prescription on a clinical record
+PUT {{PsyLink.API_HostAddress}}/records/{{recordId}}/prescriptions/{{prescriptionId}}
+Authorization: Bearer {{psychologistAccessToken}}
+Content-Type: application/json
+
+{
+  "dosage": "1 tableta cada 12 horas",
+  "quantity": 20
+}
+
+###
+
+### Delete a prescription from a clinical record
+DELETE {{PsyLink.API_HostAddress}}/records/{{recordId}}/prescriptions/{{prescriptionId}}
+Authorization: Bearer {{psychologistAccessToken}}
+
+###
+
+### Get an appointment's details
+GET {{PsyLink.API_HostAddress}}/appointments/{{appointmentId}}
+Authorization: Bearer {{patientAccessToken}}
+Accept: application/json
+
+###
+
+### Reschedule an appointment by changing its date or time
+PUT {{PsyLink.API_HostAddress}}/appointments/{{appointmentId}}
+Authorization: Bearer {{patientAccessToken}}
+Content-Type: application/json
+
+{
+  "dateAt": "2026-12-15",
+  "startsAt": "09:00:00",
+  "endsAt": "10:00:00"
+}
+
+###
+
+### Search the diagnosis catalog
+GET {{PsyLink.API_HostAddress}}/diagnoses?search=ansiedad&page=1&pageSize=20&sortDirection=asc
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### Get a diagnosis catalog entry
+GET {{PsyLink.API_HostAddress}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### Create a diagnosis
+POST {{PsyLink.API_HostAddress}}/diagnoses
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Trastorno de ansiedad generalizada",
+  "description": "Diagnóstico de ejemplo"
+}
+
+###
+
+### Update a diagnosis
+PUT {{PsyLink.API_HostAddress}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Trastorno de ansiedad",
+  "description": "Descripción actualizada"
+}
+
+###
+
+### Delete a diagnosis (soft delete when references exist)
+DELETE {{PsyLink.API_HostAddress}}/diagnoses/{{diagnosisId}}
+Authorization: Bearer {{adminAccessToken}}
+
+###
+
+### Create a medication and link existing active ingredients
+POST {{PsyLink.API_HostAddress}}/medications
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "laboratoryId": "{{laboratoryId}}",
+  "name": "Medicamento de ejemplo",
+  "content": 30,
+  "presentation": "tabletas",
+  "ingredientIds": ["{{ingredientId}}"]
+}
+
+###
+
+### Search medications by name, laboratory, and ingredient
+GET {{PsyLink.API_HostAddress}}/medications?search=medicamento&laboratoryId={{laboratoryId}}&ingredientId={{ingredientId}}&page=1&pageSize=20
+Authorization: Bearer {{psychologistAccessToken}}
+Accept: application/json
+
+###
+
+### List laboratories
+GET {{PsyLink.API_HostAddress}}/laboratories
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###
+
+### List active ingredients
+GET {{PsyLink.API_HostAddress}}/active-ingredients
+Authorization: Bearer {{adminAccessToken}}
 Accept: application/json
 
 ###

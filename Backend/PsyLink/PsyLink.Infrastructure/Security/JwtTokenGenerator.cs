@@ -20,6 +20,8 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         _settings = options.Value;
     }
 
+    public int ExpirationSeconds => checked(_settings.ExpirationMinutes * 60);
+
     public string GenerateToken(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
