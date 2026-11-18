@@ -1,0 +1,63 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+namespace PsyLink.Application.Features.Tenants.DTOs;
+
+public sealed record TenantUpdateRequestDto : IValidatableObject
+{
+    private string? _name;
+    private string? _email;
+    private string? _rtn;
+    private string? _phoneNumber;
+    private bool? _active;
+
+    public string? Name
+    {
+        get => _name;
+        init { _name = value; NameSpecified = true; }
+    }
+
+    public string? Email
+    {
+        get => _email;
+        init { _email = value; EmailSpecified = true; }
+    }
+
+    public string? Rtn
+    {
+        get => _rtn;
+        init { _rtn = value; RtnSpecified = true; }
+    }
+
+    public string? PhoneNumber
+    {
+        get => _phoneNumber;
+        init { _phoneNumber = value; PhoneNumberSpecified = true; }
+    }
+
+    public bool? Active
+    {
+        get => _active;
+        init { _active = value; ActiveSpecified = true; }
+    }
+
+    [JsonIgnore]
+    public bool NameSpecified { get; private init; }
+    [JsonIgnore]
+    public bool EmailSpecified { get; private init; }
+    [JsonIgnore]
+    public bool RtnSpecified { get; private init; }
+    [JsonIgnore]
+    public bool PhoneNumberSpecified { get; private init; }
+    [JsonIgnore]
+    public bool ActiveSpecified { get; private init; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!NameSpecified && !EmailSpecified && !RtnSpecified &&
+            !PhoneNumberSpecified && !ActiveSpecified)
+        {
+            yield return new ValidationResult("Debe especificar al menos un campo para actualizar.");
+        }
+    }
+}

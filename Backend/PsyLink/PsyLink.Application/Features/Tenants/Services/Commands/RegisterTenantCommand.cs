@@ -7,4 +7,4 @@ public record RegisterTenantCommand(
     string Name,
     string? Email,
     string? PhoneNumber,
-    string? Rtn) : ICommand<TenantDto>;
+    string? Rtn) : ICommand<TenantResponseDto>;

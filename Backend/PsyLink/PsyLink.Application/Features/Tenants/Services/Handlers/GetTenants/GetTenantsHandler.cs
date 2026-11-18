@@ -1,6 +1,8 @@
 using MediatR;
 using PsyLink.Application.Features.Tenants.DTOs;
 using PsyLink.Application.Features.Tenants.Services.Queries;
+using PsyLink.Application.Features.Shared.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;
 
@@ -9,9 +11,9 @@ namespace PsyLink.Application.Features.Tenants.Services.Handlers.GetTenants;
 public sealed class GetTenantsHandler(
     ITenantRepository tenantRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<GetTenantsQuery, TenantPageDto>
+    : IRequestHandler<GetTenantsQuery, PageResponseDto<TenantResponseDto>>
 {
-    public async Task<TenantPageDto> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
+    public async Task<PageResponseDto<TenantResponseDto>> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
     {
         if (currentUser.RoleName != RoleNames.SuperAdmin)
         {
@@ -19,7 +21,7 @@ public sealed class GetTenantsHandler(
         }
 
         const int fetchPageSize = 100;
-        var allTenants = new List<TenantDto>();
+        var allTenants = new List<TenantResponseDto>();
         var fetchPage = 1;
         int totalCount;
         do
@@ -32,21 +34,25 @@ public sealed class GetTenantsHandler(
                 fetchPageSize,
                 cancellationToken);
             totalCount = count;
-            allTenants.AddRange(tenants.Select(tenant => new TenantDto
-            {
-                TenantId = tenant.TenantId,
-                Name = tenant.Name,
-                Email = tenant.Email,
-                Phone = tenant.Phone?.Number,
-                PhoneId = tenant.Phone?.PhoneId,
-                Rtn = tenant.Rtn,
-                Active = tenant.Active
-            }));
+            allTenants.AddRange(tenants.Select(tenant =>
+                new TenantResponseDto(
+                    tenant.TenantId,
+                    tenant.Name,
+                    tenant.Email,
+                    tenant.Rtn,
+                    tenant.Phone is null
+                        ? null
+                        : new PhoneNumberResponseDto
+                        {
+                            PhoneId = tenant.Phone.PhoneId,
+                            PhoneNumber = tenant.Phone.Number
+                        },
+                    tenant.Active)));
             fetchPage++;
         }
         while (allTenants.Count < totalCount);
 
-        IEnumerable<TenantDto> filtered = allTenants;
+        IEnumerable<TenantResponseDto> filtered = allTenants;
         if (request.Active.HasValue)
         {
             filtered = filtered.Where(tenant => tenant.Active == request.Active.Value);
@@ -75,17 +81,19 @@ public sealed class GetTenantsHandler(
             .ToList();
         var filteredCount = ordered.Count();
 
-        return new TenantPageDto
-        {
-            Items = resultItems,
-            PageNumber = request.Page,
-            PageSize = request.PageSize,
-            TotalCount = filteredCount
-        };
+        var totalPages = (int)Math.Ceiling(filteredCount / (double)request.PageSize);
+        return new PageResponseDto<TenantResponseDto>(
+            resultItems,
+            request.Page,
+            request.PageSize,
+            filteredCount,
+            totalPages,
+            request.Page > 1,
+            request.Page < totalPages);
     }
 
-    private static IOrderedEnumerable<TenantDto> OrderTenants(
-        IEnumerable<TenantDto> tenants,
+    private static IOrderedEnumerable<TenantResponseDto> OrderTenants(
+        IEnumerable<TenantResponseDto> tenants,
         string sortBy,
         string sortDirection)
     {

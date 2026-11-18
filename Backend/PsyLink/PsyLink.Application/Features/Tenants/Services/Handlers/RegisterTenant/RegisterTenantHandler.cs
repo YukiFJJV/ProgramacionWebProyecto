@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using PsyLink.Application.Features.Tenants.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Features.Tenants.Services.Commands;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;
@@ -9,9 +10,9 @@ using PsyLink.Domain.Identity;
 namespace PsyLink.Application.Features.Tenants.Services.Handlers.RegisterTenant;
 
 public sealed class RegisterTenantHandler(ITenantRepository tenantRepository)
-    : IRequestHandler<RegisterTenantCommand, TenantDto>
+    : IRequestHandler<RegisterTenantCommand, TenantResponseDto>
 {
-    public async Task<TenantDto> Handle(
+    public async Task<TenantResponseDto> Handle(
         RegisterTenantCommand request,
         CancellationToken cancellationToken)
     {
@@ -48,15 +49,18 @@ public sealed class RegisterTenantHandler(ITenantRepository tenantRepository)
 
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
-        return new TenantDto
-        {
-            TenantId = tenant.TenantId,
-            Name = tenant.Name,
-            Email = tenant.Email,
-            Phone = tenant.Phone?.Number,
-            PhoneId = tenant.Phone?.PhoneId,
-            Rtn = tenant.Rtn,
-            Active = tenant.Active
-        };
+        return new TenantResponseDto(
+            tenant.TenantId,
+            tenant.Name,
+            tenant.Email,
+            tenant.Rtn,
+            tenant.Phone is null
+                ? null
+                : new PhoneNumberResponseDto
+                {
+                    PhoneId = tenant.Phone.PhoneId,
+                    PhoneNumber = tenant.Phone.Number
+                },
+            tenant.Active);
     }
 }

@@ -12,4 +12,4 @@ public record UpdateTenantCommand(
     bool RtnSpecified,
     string? Phone,
     bool PhoneSpecified,
-    bool? Active) : ICommand<TenantDto>;
+    bool? Active) : ICommand<TenantResponseDto>;

@@ -1,5 +1,6 @@
 using MediatR;
 using PsyLink.Application.Features.Tenants.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 
 namespace PsyLink.Application.Features.Tenants.Services.Queries;
 
@@ -9,4 +10,4 @@ public record GetTenantsQuery(
     int Page = 1,
     int PageSize = 20,
     string SortBy = "name",
-    string SortDirection = "asc") : IQuery<TenantPageDto>;
+    string SortDirection = "asc") : IQuery<PageResponseDto<TenantResponseDto>>;

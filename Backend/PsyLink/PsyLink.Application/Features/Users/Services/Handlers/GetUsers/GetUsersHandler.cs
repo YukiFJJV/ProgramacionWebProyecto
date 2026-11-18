@@ -2,6 +2,7 @@ using MediatR;
 using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Features.Users.Services.Handlers.CreateUser;
 using PsyLink.Application.Features.Users.Services.Queries;
+using PsyLink.Application.Features.Shared.DTOs;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;
 
@@ -10,9 +11,9 @@ namespace PsyLink.Application.Features.Users.Services.Handlers.GetUsers;
 public sealed class GetUsersHandler(
     IUserRepository userRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<GetUsersQuery, UserPageDto>
+    : IRequestHandler<GetUsersQuery, PageResponseDto<UserResponseDto>>
 {
-    public async Task<UserPageDto> Handle(
+    public async Task<PageResponseDto<UserResponseDto>> Handle(
         GetUsersQuery request,
         CancellationToken cancellationToken)
     {
@@ -27,13 +28,18 @@ public sealed class GetUsersHandler(
             request.SortDirection,
             cancellationToken);
 
-        return new UserPageDto
-        {
-            Items = users.Select(PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse).ToList(),
-            PageNumber = request.Page,
-            PageSize = request.PageSize,
-            TotalCount = totalCount
-        };
+        var items = users
+            .Select(PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse)
+            .ToList();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+        return new PageResponseDto<UserResponseDto>(
+            items,
+            request.Page,
+            request.PageSize,
+            totalCount,
+            totalPages,
+            request.Page > 1,
+            request.Page < totalPages);
     }
 
     internal static Guid EnsureCompanyAdmin(ICurrentUserService currentUser)

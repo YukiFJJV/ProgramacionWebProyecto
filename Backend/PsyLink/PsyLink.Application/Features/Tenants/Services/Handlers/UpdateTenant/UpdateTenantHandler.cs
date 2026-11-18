@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using PsyLink.Application.Features.Tenants.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Features.Tenants.Services.Commands;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;
@@ -11,9 +12,9 @@ namespace PsyLink.Application.Features.Tenants.Services.Handlers.UpdateTenant;
 public sealed class UpdateTenantHandler(
     ITenantRepository tenantRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<UpdateTenantCommand, TenantDto>
+    : IRequestHandler<UpdateTenantCommand, TenantResponseDto>
 {
-    public async Task<TenantDto> Handle(UpdateTenantCommand request, CancellationToken cancellationToken)
+    public async Task<TenantResponseDto> Handle(UpdateTenantCommand request, CancellationToken cancellationToken)
     {
         if (currentUser.RoleName != RoleNames.SuperAdmin)
         {
@@ -79,15 +80,18 @@ public sealed class UpdateTenantHandler(
 
         await tenantRepository.UpdateAsync(tenant, cancellationToken);
 
-        return new TenantDto
-        {
-            TenantId = tenant.TenantId,
-            Name = tenant.Name,
-            Email = tenant.Email,
-            Phone = tenant.Phone?.Number,
-            PhoneId = tenant.Phone?.PhoneId,
-            Rtn = tenant.Rtn,
-            Active = tenant.Active
-        };
+        return new TenantResponseDto(
+            tenant.TenantId,
+            tenant.Name,
+            tenant.Email,
+            tenant.Rtn,
+            tenant.Phone is null
+                ? null
+                : new PhoneNumberResponseDto
+                {
+                    PhoneId = tenant.Phone.PhoneId,
+                    PhoneNumber = tenant.Phone.Number
+                },
+            tenant.Active);
     }
 }
