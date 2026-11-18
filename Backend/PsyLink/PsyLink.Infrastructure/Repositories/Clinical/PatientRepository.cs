@@ -32,6 +32,21 @@ public sealed class PatientRepository : IPatientRepository
                 cancellationToken);
     }
 
+    public Task<Patient?> GetByIdAsync(
+        Guid patientId,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Patients
+            .AsNoTracking()
+            .Include(patient => patient.User)
+                .ThenInclude(user => user.Role)
+            .Include(patient => patient.User)
+                .ThenInclude(user => user.Phone)
+            .FirstOrDefaultAsync(
+                patient => patient.PatientId == patientId,
+                cancellationToken);
+    }
+
     public Task<Patient?> GetByIdForPsychologistAsync(
         Guid patientId,
         Guid tenantId,

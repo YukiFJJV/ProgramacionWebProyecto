@@ -4,6 +4,8 @@ namespace PsyLink.Application.Interfaces;
 
 public interface IAppointmentRepository
 {
+    Task<Appointment?> GetByIdAsync(Guid appointmentId, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Returns the appointment with patient user/role/phone and psychologist
     /// user/specialty details loaded.

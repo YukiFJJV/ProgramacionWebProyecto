@@ -1,10 +1,11 @@
 using PsyLink.Domain.Clinical;
 using PsyLink.Domain.Identity;
+using PsyLink.Domain.Common;
 
 namespace PsyLink.Domain.Billing;
 
 /// <summary>Autorización fiscal (CAI) para la emisión de facturas.</summary>
-public class FiscalAuthorization
+public class FiscalAuthorization : ITenantScoped
 {
     public Guid FiscalAuthorizationId { get; set; }
     public Guid PatientId { get; set; }

@@ -5,6 +5,8 @@ namespace PsyLink.Application.Interfaces;
 
 public interface IPatientRepository
 {
+    Task<Patient?> GetByIdAsync(Guid patientId, CancellationToken cancellationToken = default);
+
     /// <summary>Loads the patient with its user, role, and phone relationships.</summary>
     Task<Patient?> GetByIdForTenantAsync(
         Guid patientId,

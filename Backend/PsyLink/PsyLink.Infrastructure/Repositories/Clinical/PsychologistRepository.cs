@@ -37,6 +37,17 @@ public sealed class PsychologistRepository : IPsychologistRepository
                 cancellationToken);
     }
 
+    public Task<Psychologist?> GetByIdAsync(
+        Guid psychologistId,
+        CancellationToken cancellationToken = default)
+    {
+        return ProfileQuery()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                psychologist => psychologist.PsychologistId == psychologistId,
+                cancellationToken);
+    }
+
     public Task<Psychologist?> GetByUserIdForTenantAsync(
         Guid userId,
         Guid tenantId,

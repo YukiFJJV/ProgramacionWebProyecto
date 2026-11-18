@@ -19,3 +19,12 @@ Regla de Negocio: El tiempo disponible de los psicologos se calcula en base a la
 *Solo se puede posponer la cita una vez
 *Crear contrato para los psicólogos para que trabajen en el horario de la empresa
 *Para cambiar de psicólogo debe haber completado al menos una cita con él.
+
+## Multi-tenancy
+
+Las entidades operativas que pertenecen a una empresa implementan `ITenantScoped` y contienen `TenantId`.
+`ApplicationDbContext` aplica filtros globales de EF Core con el `TenantId` obtenido de `ICurrentUserService`.
+Al insertar una entidad nueva, el contexto asigna automáticamente el tenant del usuario autenticado cuando el `TenantId` está vacío.
+
+Las operaciones públicas de login y registro de tenant deben usar `IgnoreQueryFilters()` explícitamente.
+Los métodos de repositorio no deben aceptar un `tenantId` redundante para recursos operativos: el aislamiento se garantiza por el contexto y el filtro global.

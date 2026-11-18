@@ -1,7 +1,9 @@
+using PsyLink.Domain.Common;
+
 namespace PsyLink.Domain.Clinical;
 
 /// <summary>Bloque de horario laboral semanal de un psicólogo.</summary>
-public class WorkSchedule
+public class WorkSchedule : ITenantScoped
 {
     public Guid ScheduleId { get; set; }
     public Guid PsychologistId { get; set; }

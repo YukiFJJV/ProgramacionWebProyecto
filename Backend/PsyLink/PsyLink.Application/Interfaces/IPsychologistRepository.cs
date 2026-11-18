@@ -4,6 +4,8 @@ namespace PsyLink.Application.Interfaces;
 
 public interface IPsychologistRepository
 {
+    Task<Psychologist?> GetByIdAsync(Guid psychologistId, CancellationToken cancellationToken = default);
+
     /// <summary>Loads the profile with its user, role, phone, and specialty relationships.</summary>
     Task<Psychologist?> GetByIdForTenantAsync(
         Guid psychologistId,

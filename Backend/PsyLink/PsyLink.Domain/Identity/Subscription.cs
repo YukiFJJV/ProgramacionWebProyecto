@@ -1,6 +1,8 @@
+using PsyLink.Domain.Common;
+
 namespace PsyLink.Domain.Identity;
 
-public class Subscription
+public class Subscription : ITenantScoped
 {
     public Guid SubscriptionId { get; set; }
     public Guid SubplanId { get; set; }

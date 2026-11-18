@@ -4,6 +4,8 @@ namespace PsyLink.Application.Interfaces;
 
 public interface IWorkScheduleRepository
 {
+    Task<WorkSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken cancellationToken = default);
+
     Task<WorkSchedule?> GetByIdForTenantAsync(
         Guid scheduleId,
         Guid tenantId,

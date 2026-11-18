@@ -28,6 +28,16 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
                 cancellationToken);
     }
 
+    public Task<WorkSchedule?> GetByIdAsync(
+        Guid scheduleId,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.WorkSchedules
+            .FirstOrDefaultAsync(
+                schedule => schedule.ScheduleId == scheduleId,
+                cancellationToken);
+    }
+
     public async Task<IReadOnlyList<WorkSchedule>> GetByPsychologistAsync(
         Guid psychologistId,
         Guid tenantId,

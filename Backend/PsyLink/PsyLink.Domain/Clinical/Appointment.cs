@@ -2,7 +2,7 @@ using PsyLink.Domain.Common;
 
 namespace PsyLink.Domain.Clinical;
 
-public class Appointment
+public class Appointment : ITenantScoped
 {
     /// <summary>Un paciente solo puede reprogramar su cita una vez (HU-09 y README).</summary>
     public const int MaxPatientReschedules = 1;

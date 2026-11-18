@@ -44,6 +44,16 @@ public sealed class AppointmentRepository : IAppointmentRepository
                 cancellationToken);
     }
 
+    public Task<Appointment?> GetByIdAsync(
+        Guid appointmentId,
+        CancellationToken cancellationToken = default)
+    {
+        return DisplayQuery()
+            .FirstOrDefaultAsync(
+                appointment => appointment.AppointmentId == appointmentId,
+                cancellationToken);
+    }
+
     public Task<bool> HasOverlapAsync(
         Guid psychologistId,
         DateOnly dateAt,

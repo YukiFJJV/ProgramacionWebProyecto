@@ -3,7 +3,7 @@ using PsyLink.Domain.Common;
 namespace PsyLink.Domain.Clinical;
 
 /// <summary>Expediente clínico del paciente (uno por paciente).</summary>
-public class PatientRecord
+public class PatientRecord : ITenantScoped
 {
     public Guid RecordId { get; set; }
     public Guid PatientId { get; set; }

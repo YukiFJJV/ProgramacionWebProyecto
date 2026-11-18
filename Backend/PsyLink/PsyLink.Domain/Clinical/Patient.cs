@@ -1,8 +1,9 @@
 using PsyLink.Domain.Identity;
+using PsyLink.Domain.Common;
 
 namespace PsyLink.Domain.Clinical;
 
-public class Patient
+public class Patient : ITenantScoped
 {
     public Guid PatientId { get; set; }
     public Guid UserId { get; set; }

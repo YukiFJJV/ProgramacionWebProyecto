@@ -22,6 +22,7 @@ public sealed class UserRepository : IUserRepository
         var normalizedEmail = email.Trim().ToLower();
 
         return _context.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Role)
             .Include(u => u.Phone)
             .Include(u => u.Tenant)

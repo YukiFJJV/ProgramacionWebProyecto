@@ -6,15 +6,21 @@ using PsyLink.Domain.Clinical;
 using PsyLink.Domain.Pharmacy;
 using PsyLink.Domain.Billing;
 using PsyLink.Application.Common.Interfaces;
+using PsyLink.Application.Interfaces;
+using PsyLink.Domain.Common;
 
 namespace PsyLink.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext, IUnitOfWork
 {
+    private readonly Guid? _tenantId;
+
     public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options)
+        DbContextOptions<ApplicationDbContext> options,
+        ICurrentUserService currentUser)
         : base(options)
     {
+        _tenantId = currentUser.TenantId;
     }
 
     // IDENTITY
@@ -57,5 +63,72 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ApplicationDbContext).Assembly);
+
+        modelBuilder.Entity<Tenant>()
+            .HasQueryFilter(entity =>
+                _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<User>()
+            .HasQueryFilter(entity =>
+                _tenantId == null ||
+                entity.TenantId == null ||
+                entity.TenantId == _tenantId);
+        modelBuilder.Entity<Patient>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<Psychologist>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<Appointment>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<PatientRecord>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<WorkSchedule>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<Subscription>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<BillDetail>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<FiscalAuthorization>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        AssignTenantId();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        AssignTenantId();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void AssignTenantId()
+    {
+        if (_tenantId is null)
+        {
+            return;
+        }
+
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State != EntityState.Added)
+            {
+                continue;
+            }
+
+            if (entry.Entity is ITenantScoped scoped &&
+                scoped.TenantId == Guid.Empty)
+            {
+                scoped.TenantId = _tenantId.Value;
+            }
+
+            if (entry.Entity is User user &&
+                user.TenantId is null)
+            {
+                user.TenantId = _tenantId;
+            }
+        }
     }
 }

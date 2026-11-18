@@ -1,6 +1,8 @@
+using PsyLink.Domain.Common;
+
 namespace PsyLink.Domain.Billing;
 
-public class BillDetail
+public class BillDetail : ITenantScoped
 {
     public Guid DetailId { get; set; }
     public Guid PaymentId { get; set; }
