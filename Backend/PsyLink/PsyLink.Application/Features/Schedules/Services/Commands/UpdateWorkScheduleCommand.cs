@@ -4,4 +4,4 @@ using PsyLink.Application.Features.Schedules.DTOs;
 namespace PsyLink.Application.Features.Schedules.Services.Commands;
 
 public record UpdateWorkScheduleCommand(Guid ScheduleId, ScheduleRequestDto Schedule)
-    : ICommand<WorkScheduleResponseDto>;
+    : ICommand<ScheduleResponseDto>;

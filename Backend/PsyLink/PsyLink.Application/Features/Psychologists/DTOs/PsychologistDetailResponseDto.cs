@@ -11,5 +11,5 @@ public class PsychologistDetailResponseDto
     public SpecialtyResponseDto Specialty { get; set; } = new();
     public string LicenseNumber { get; set; } = string.Empty;
     public string? Biography { get; set; }
-    public List<WorkScheduleResponseDto> Schedules { get; set; } = new();
+    public List<ScheduleResponseDto> Schedules { get; set; } = new();
 }

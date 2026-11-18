@@ -11,9 +11,9 @@ public sealed class GetWorkSchedulesHandler(
     IPsychologistRepository psychologistRepository,
     IWorkScheduleRepository workScheduleRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<GetWorkSchedulesQuery, IReadOnlyList<WorkScheduleResponseDto>>
+    : IRequestHandler<GetWorkSchedulesQuery, IReadOnlyList<ScheduleResponseDto>>
 {
-    public async Task<IReadOnlyList<WorkScheduleResponseDto>> Handle(
+    public async Task<IReadOnlyList<ScheduleResponseDto>> Handle(
         GetWorkSchedulesQuery request,
         CancellationToken cancellationToken)
     {

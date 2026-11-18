@@ -11,9 +11,9 @@ namespace PsyLink.Application.Features.Schedules.Services.Handlers.UpdateWorkSch
 public sealed class UpdateWorkScheduleHandler(
     IWorkScheduleRepository workScheduleRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<UpdateWorkScheduleCommand, WorkScheduleResponseDto>
+    : IRequestHandler<UpdateWorkScheduleCommand, ScheduleResponseDto>
 {
-    public async Task<WorkScheduleResponseDto> Handle(
+    public async Task<ScheduleResponseDto> Handle(
         UpdateWorkScheduleCommand request,
         CancellationToken cancellationToken)
     {

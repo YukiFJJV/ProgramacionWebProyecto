@@ -12,9 +12,9 @@ public sealed class CreateWorkScheduleHandler(
     IPsychologistRepository psychologistRepository,
     IWorkScheduleRepository workScheduleRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<CreateWorkScheduleCommand, WorkScheduleResponseDto>
+    : IRequestHandler<CreateWorkScheduleCommand, ScheduleResponseDto>
 {
-    public async Task<WorkScheduleResponseDto> Handle(
+    public async Task<ScheduleResponseDto> Handle(
         CreateWorkScheduleCommand request,
         CancellationToken cancellationToken)
     {
@@ -61,12 +61,11 @@ public sealed class CreateWorkScheduleHandler(
         return currentUser.TenantId.Value;
     }
 
-    internal static WorkScheduleResponseDto ToResponse(WorkSchedule schedule) => new()
-    {
-        ScheduleId = schedule.ScheduleId,
-        PsychologistId = schedule.PsychologistId,
-        WeekDay = (PsyLink.Application.Features.Schedules.DTOs.WeekDay)(int)schedule.WeekDay,
-        StartsAt = schedule.StartsAt,
-        EndsAt = schedule.EndsAt
-    };
+    internal static ScheduleResponseDto ToResponse(WorkSchedule schedule) =>
+        new(
+            schedule.ScheduleId,
+            schedule.PsychologistId,
+            schedule.WeekDay.ToString().ToUpperInvariant(),
+            schedule.StartsAt,
+            schedule.EndsAt);
 }
