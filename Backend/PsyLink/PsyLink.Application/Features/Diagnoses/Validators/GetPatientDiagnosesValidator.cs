@@ -1,7 +1,7 @@
 using FluentValidation;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 
-namespace PsyLink.Application.Features.Patients.Validators;
+namespace PsyLink.Application.Features.Diagnoses.Validators;
 
 public sealed class GetPatientDiagnosesValidator : AbstractValidator<GetPatientDiagnosesQuery>
 {

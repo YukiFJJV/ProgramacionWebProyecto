@@ -2,7 +2,7 @@ using MediatR;
 using PsyLink.Application.Features.Patients.DTOs;
 using PsyLink.Application.Features.Shared.DTOs;
 
-namespace PsyLink.Application.Features.Patients.Services.Queries;
+namespace PsyLink.Application.Features.Diagnoses.Services.Queries;
 
 public record GetPatientsQuery(
     string? Search = null,

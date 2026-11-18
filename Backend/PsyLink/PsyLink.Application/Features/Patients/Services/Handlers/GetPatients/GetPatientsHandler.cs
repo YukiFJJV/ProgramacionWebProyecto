@@ -1,6 +1,6 @@
 using MediatR;
 using PsyLink.Application.Features.Patients.DTOs;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.Application.Features.Shared.DTOs;
 using PsyLink.Application.Features.Users.Services.Handlers.CreateUser;
 using PsyLink.Application.Interfaces;
@@ -69,7 +69,7 @@ public sealed class GetPatientsHandler(
         new()
         {
             PatientId = patient.PatientId,
-            User = CreateUserHandler.ToResponse(patient.User),
+            User = PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(patient.User),
             BirthDate = patient.BirthDate,
             Description = patient.Description,
             Age = patient.AgeOn(DateOnly.FromDateTime(DateTime.UtcNow))

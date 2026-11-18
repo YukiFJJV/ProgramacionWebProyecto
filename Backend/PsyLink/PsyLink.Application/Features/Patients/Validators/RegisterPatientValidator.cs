@@ -1,7 +1,7 @@
 using FluentValidation;
-using PsyLink.Application.Features.Patients.Services.Commands;
+using PsyLink.Application.Features.Diagnoses.Services.Commands;
 
-namespace PsyLink.Application.Features.Patients.Validators;
+namespace PsyLink.Application.Features.Diagnoses.Validators;
 
 public sealed class RegisterPatientValidator : AbstractValidator<RegisterPatientCommand>
 {

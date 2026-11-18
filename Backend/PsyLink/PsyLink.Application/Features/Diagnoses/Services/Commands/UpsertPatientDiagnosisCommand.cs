@@ -1,7 +1,7 @@
 using MediatR;
-using PsyLink.Application.Features.Patients.DTOs;
+using PsyLink.Application.Features.Diagnoses.DTOs;
 
-namespace PsyLink.Application.Features.Patients.Services.Commands;
+namespace PsyLink.Application.Features.Diagnoses.Services.Commands;
 
 public sealed record UpsertPatientDiagnosisCommand(
     Guid PatientId,

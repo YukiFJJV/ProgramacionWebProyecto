@@ -28,3 +28,11 @@ Al insertar una entidad nueva, el contexto asigna automáticamente el tenant del
 
 Las operaciones públicas de login y registro de tenant deben usar `IgnoreQueryFilters()` explícitamente.
 Los métodos de repositorio no deben aceptar un `tenantId` redundante para recursos operativos: el aislamiento se garantiza por el contexto y el filtro global.
+
+## Límites verticales
+
+Cada caso de uso vive en su feature y expone un único `Command` o `Query`, su handler y su validator.
+Los DTO compartidos por varios casos se mantienen en `Features/<Feature>/Shared`; los DTO realmente transversales viven en `Features/Shared`.
+
+`Patients` contiene el perfil y registro de pacientes. `Diagnoses` contiene el catálogo, diagnósticos del expediente y diagnósticos asociados al paciente con sus estados.
+Esta decisión evita duplicar reglas clínicas y mantiene el acceso a diagnósticos dentro del feature que posee el catálogo clínico.

@@ -1,4 +1,4 @@
-namespace PsyLink.Application.Features.Patients.DTOs;
+namespace PsyLink.Application.Features.Diagnoses.DTOs;
 
 public sealed record PatientDiagnosisUpsertRequestDto(
     Guid StatusId,

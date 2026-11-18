@@ -1,10 +1,10 @@
 using MediatR;
 using PsyLink.Application.Features.Diagnoses.DTOs;
-using PsyLink.Application.Features.Patients.DTOs;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.Application.Interfaces;
+using PsyLink.Application.Features.Patients.Services;
 
-namespace PsyLink.Application.Features.Patients.Services.Handlers.GetPatientDiagnoses;
+namespace PsyLink.Application.Features.Diagnoses.Services.Handlers.GetPatientDiagnoses;
 
 public sealed class GetPatientDiagnosesHandler(
     IPatientRepository patientRepository,

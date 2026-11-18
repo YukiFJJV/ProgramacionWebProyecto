@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 using PsyLink.Application.Features.Patients.DTOs;
-using PsyLink.Application.Features.Patients.Services.Commands;
+using PsyLink.Application.Features.Diagnoses.Services.Commands;
 using PsyLink.Application.Features.Patients.Services.Handlers.GetPatients;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;

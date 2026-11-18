@@ -63,7 +63,7 @@ public sealed class CreateUserHandler(
         };
 
         await userRepository.AddAsync(user, cancellationToken);
-        return ToResponse(user);
+        return PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(user);
     }
 
     private void EnsureCompanyAdmin()
@@ -74,32 +74,4 @@ public sealed class CreateUserHandler(
         }
     }
 
-    internal static UserResponseDto ToResponse(User user)
-    {
-        if (user.TenantId is null)
-        {
-            throw new PsyLink.Application.Common.Exceptions.ConflictException("La cuenta registrada no tiene una empresa asignada.");
-        }
-
-        return new UserResponseDto
-        {
-            UserId = user.UserId,
-            TenantId = user.TenantId.Value,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Phone = user.Phone is null
-                ? null
-                : new PhoneNumberResponseDto
-                {
-                    PhoneId = user.Phone.PhoneId,
-                    Number = user.Phone.Number
-                },
-            Role = new RoleResponseDto
-            {
-                RoleId = user.Role.RoleId,
-                Name = user.Role.Name
-            }
-        };
-    }
 }

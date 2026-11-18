@@ -1,7 +1,7 @@
 using MediatR;
 using PsyLink.Application.Features.Patients.DTOs;
 using PsyLink.Application.Features.Patients.Services.Handlers.GetPatients;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Identity;
 

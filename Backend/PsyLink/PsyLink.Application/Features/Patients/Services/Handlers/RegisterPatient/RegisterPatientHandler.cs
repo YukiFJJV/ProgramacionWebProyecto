@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 using PsyLink.Application.Features.Patients.DTOs;
-using PsyLink.Application.Features.Patients.Services.Commands;
+using PsyLink.Application.Features.Diagnoses.Services.Commands;
 using PsyLink.Application.Features.Users.Services.Handlers.CreateUser;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Clinical;
@@ -81,7 +81,7 @@ public sealed class RegisterPatientHandler(
         return new PatientResponseDto
         {
             PatientId = patient.PatientId,
-            User = CreateUserHandler.ToResponse(user),
+            User = PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(user),
             BirthDate = patient.BirthDate,
             Description = patient.Description,
             Age = patient.AgeOn(DateOnly.FromDateTime(DateTime.UtcNow))

@@ -1,11 +1,12 @@
 using MediatR;
-using PsyLink.Application.Features.Patients.DTOs;
-using PsyLink.Application.Features.Patients.Services.Commands;
-using PsyLink.Application.Features.Patients.Services.Handlers.GetPatientDiagnoses;
+using PsyLink.Application.Features.Diagnoses.DTOs;
+using PsyLink.Application.Features.Diagnoses.Services.Commands;
+using PsyLink.Application.Features.Diagnoses.Services.Handlers.GetPatientDiagnoses;
 using PsyLink.Application.Interfaces;
+using PsyLink.Application.Features.Patients.Services;
 using PsyLink.Domain.Clinical;
 
-namespace PsyLink.Application.Features.Patients.Services.Handlers.UpsertPatientDiagnosis;
+namespace PsyLink.Application.Features.Diagnoses.Services.Handlers.UpsertPatientDiagnosis;
 
 public sealed class UpsertPatientDiagnosisHandler(
     IPatientRepository patientRepository,
