@@ -15,5 +15,6 @@
     <ProjectReference Include="..\PsyLink.Application\PsyLink.Application.csproj" />
     <ProjectReference Include="..\PsyLink.Domain\PsyLink.Domain.csproj" />
     <ProjectReference Include="..\PsyLink.Infrastructure\PsyLink.Infrastructure.csproj" />
+    <ProjectReference Include="..\PsyLink.API\PsyLink.API.csproj" />
   </ItemGroup>
 </Project>
