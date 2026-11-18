@@ -1,15 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Diagnoses.Services.Commands;
 using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.API.Authorization;
-using AppDiagnosisDetailResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisDetailResponseDto;
-using AppDiagnosisQueryDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisQueryDto;
-using AppDiagnosisResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisResponseDto;
-using AppDiagnosisRequestDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisRequestDto;
 
+using PsyLink.Application.Features.Diagnoses.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -29,24 +26,8 @@ public sealed class DiagnosesController(ISender mediator) : ControllerBase
         [FromQuery] DiagnosisQueryDto query,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(
-            new GetDiagnosesQuery(new AppDiagnosisQueryDto
-            {
-                Search = query.Search,
-                Page = query.Page,
-                PageSize = query.PageSize,
-                SortDirection = query.SortDirection
-            }),
-            cancellationToken);
-
-        return Ok(new PageResponseDto<DiagnosisResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.Page,
-            result.PageSize,
-            result.TotalItems,
-            result.TotalPages,
-            result.HasPrevious,
-            result.HasNext));
+        var result = await mediator.Send(new GetDiagnosesQuery(query), cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("{diagnosisId:guid}")]
@@ -64,7 +45,7 @@ public sealed class DiagnosesController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new GetDiagnosisDetailQuery(diagnosisId),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPost]
@@ -79,15 +60,8 @@ public sealed class DiagnosesController(ISender mediator) : ControllerBase
         [FromBody] DiagnosisRequestDto request,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(
-            new CreateDiagnosisCommand(new AppDiagnosisRequestDto
-            {
-                Name = request.Name,
-                Description = request.Description
-            }),
-            cancellationToken);
-        var response = ToResponse(result);
-        return CreatedAtAction(nameof(GetById), new { diagnosisId = response.DiagnosisId }, response);
+        var result = await mediator.Send(new CreateDiagnosisCommand(request), cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { diagnosisId = result.DiagnosisId }, result);
     }
 
     [HttpPut("{diagnosisId:guid}")]
@@ -105,15 +79,9 @@ public sealed class DiagnosesController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpdateDiagnosisCommand(
-                diagnosisId,
-                new AppDiagnosisRequestDto
-                {
-                    Name = request.Name,
-                    Description = request.Description
-                }),
+            new UpdateDiagnosisCommand(diagnosisId, request),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpDelete("{diagnosisId:guid}")]
@@ -131,11 +99,4 @@ public sealed class DiagnosesController(ISender mediator) : ControllerBase
         await mediator.Send(new DeleteDiagnosisCommand(diagnosisId), cancellationToken);
         return NoContent();
     }
-
-    private static DiagnosisResponseDto ToResponse(AppDiagnosisResponseDto diagnosis) =>
-        new(diagnosis.DiagnosisId, diagnosis.Name);
-
-    private static DiagnosisDetailResponseDto ToResponse(
-        AppDiagnosisDetailResponseDto diagnosis) =>
-        new(diagnosis.DiagnosisId, diagnosis.Name, diagnosis.Description);
 }

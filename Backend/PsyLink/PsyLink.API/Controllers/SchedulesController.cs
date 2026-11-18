@@ -1,11 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Schedules.Services.Commands;
 using PsyLink.API.Authorization;
-using AppScheduleRequestDto = PsyLink.Application.Features.Schedules.DTOs.ScheduleRequestDto;
 
+using PsyLink.Application.Features.Schedules.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -28,21 +27,8 @@ public sealed class SchedulesController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpdateWorkScheduleCommand(
-                scheduleId,
-                new AppScheduleRequestDto
-                {
-                    WeekDay = request.WeekDay,
-                    StartsAt = request.StartsAt,
-                    EndsAt = request.EndsAt
-                }),
+            new UpdateWorkScheduleCommand(scheduleId, request),
             cancellationToken);
-
-        return Ok(new ScheduleResponseDto(
-            result.ScheduleId,
-            result.PsychologistId,
-            result.WeekDay.ToString().ToUpperInvariant(),
-            result.StartsAt,
-            result.EndsAt));
+        return Ok(result);
     }
 }

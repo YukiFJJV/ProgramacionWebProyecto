@@ -1,12 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Specialties.Services.Commands;
 using PsyLink.Application.Features.Specialties.Services.Queries;
 using PsyLink.API.Authorization;
-using AppSpecialtyResponseDto = PsyLink.Application.Features.Specialties.DTOs.SpecialtyResponseDto;
 
+using PsyLink.Application.Features.Specialties.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -30,8 +29,7 @@ public sealed class SpecialtiesController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new CreateSpecialtyCommand(request.SpecialtyName),
             cancellationToken);
-        var response = ToResponse(result);
-        return CreatedAtAction(nameof(Get), null, response);
+        return CreatedAtAction(nameof(Get), null, result);
     }
 
     [HttpGet]
@@ -45,7 +43,7 @@ public sealed class SpecialtiesController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetSpecialtiesQuery(), cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
 
     [HttpPut("{specialtyId:guid}")]
@@ -66,9 +64,6 @@ public sealed class SpecialtiesController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new UpdateSpecialtyCommand(specialtyId, request.SpecialtyName),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
-
-    private static SpecialtyResponseDto ToResponse(AppSpecialtyResponseDto specialty) =>
-        new(specialty.SpecialtyId, specialty.SpecialtyName);
 }

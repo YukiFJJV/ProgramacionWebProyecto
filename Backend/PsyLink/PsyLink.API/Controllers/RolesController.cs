@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Users.Services.Queries;
+using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.API.Authorization;
 
 namespace PsyLink.API.Controllers;
@@ -22,6 +22,6 @@ public sealed class RolesController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var roles = await mediator.Send(new GetAssignableRolesQuery(), cancellationToken);
-        return Ok(roles.Select(role => new RoleResponseDto(role.RoleId, role.Name)).ToList());
+        return Ok(roles);
     }
 }

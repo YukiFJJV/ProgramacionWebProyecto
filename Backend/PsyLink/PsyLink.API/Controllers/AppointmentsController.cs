@@ -1,18 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
+using PsyLink.Application.Features.Appointments.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 using PsyLink.Application.Features.Appointments.Services.Commands;
 using PsyLink.Application.Features.Appointments.Services.Queries;
 using PsyLink.API.Authorization;
-using AppAppointmentCreateRequestDto = PsyLink.Application.Features.Appointments.DTOs.AppointmentCreateRequestDto;
-using AppAppointmentDetailResponseDto = PsyLink.Application.Features.Appointments.DTOs.AppointmentDetailResponseDto;
-using AppAppointmentQueryDto = PsyLink.Application.Features.Appointments.DTOs.AppointmentQueryDto;
-using AppAppointmentResponseDto = PsyLink.Application.Features.Appointments.DTOs.AppointmentResponseDto;
-using AppAppointmentUpdateRequestDto = PsyLink.Application.Features.Appointments.DTOs.AppointmentUpdateRequestDto;
-using AppPatientResponseDto = PsyLink.Application.Features.Patients.DTOs.PatientResponseDto;
-using AppPsychologistSummaryResponseDto = PsyLink.Application.Features.Psychologists.DTOs.PsychologistSummaryResponseDto;
-using AppUserResponseDto = PsyLink.Application.Features.Users.DTOs.UserResponseDto;
 
 namespace PsyLink.API.Controllers;
 
@@ -35,20 +28,12 @@ public sealed class AppointmentsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new CreateAppointmentCommand(new AppAppointmentCreateRequestDto
-            {
-                PsychologistId = request.PsychologistId,
-                PatientId = request.PatientId,
-                DateAt = request.DateAt,
-                StartsAt = request.StartsAt,
-                EndsAt = request.EndsAt
-            }),
+            new CreateAppointmentCommand(request),
             cancellationToken);
-        var response = ToResponse(result);
         return CreatedAtAction(
             nameof(GetById),
-            new { appointmentId = response.AppointmentId },
-            response);
+            new { appointmentId = result.AppointmentId },
+            result);
     }
 
     [HttpGet]
@@ -64,26 +49,10 @@ public sealed class AppointmentsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new GetPsychologistAppointmentsQuery(new AppAppointmentQueryDto
-            {
-                PatientId = query.PatientId,
-                PsychologistId = query.PsychologistId,
-                DateFrom = query.DateFrom,
-                DateTo = query.DateTo,
-                Page = query.Page,
-                PageSize = query.PageSize,
-                SortDirection = query.SortDirection
-            }),
+            new GetPsychologistAppointmentsQuery(query),
             cancellationToken);
 
-        return Ok(new PageResponseDto<AppointmentResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.Page,
-            result.PageSize,
-            result.TotalItems,
-            result.TotalPages,
-            result.HasPrevious,
-            result.HasNext));
+        return Ok(result);
     }
 
     [HttpGet("{appointmentId:guid}")]
@@ -101,7 +70,7 @@ public sealed class AppointmentsController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new GetAppointmentDetailQuery(appointmentId),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPut("{appointmentId:guid}")]
@@ -119,67 +88,8 @@ public sealed class AppointmentsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new RescheduleAppointmentCommand(
-                appointmentId,
-                new AppAppointmentUpdateRequestDto
-                {
-                    DateAt = request.DateAt,
-                    StartsAt = request.StartsAt,
-                    EndsAt = request.EndsAt
-                }),
+            new RescheduleAppointmentCommand(appointmentId, request),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
-
-    private static AppointmentResponseDto ToResponse(AppAppointmentResponseDto appointment) =>
-        new(
-            appointment.AppointmentId,
-            appointment.PatientId,
-            appointment.PatientName,
-            appointment.PsychologistId,
-            appointment.PsychologistName,
-            appointment.DateAt,
-            appointment.StartsAt,
-            appointment.EndsAt);
-
-    private static AppointmentDetailResponseDto ToResponse(
-        AppAppointmentDetailResponseDto appointment) =>
-        new(
-            appointment.AppointmentId,
-            ToResponse(appointment.Patient),
-            ToResponse(appointment.Psychologist),
-            appointment.DateAt,
-            appointment.StartsAt,
-            appointment.EndsAt);
-
-    private static PatientResponseDto ToResponse(AppPatientResponseDto patient) =>
-        new(
-            patient.PatientId,
-            ToResponse(patient.User),
-            patient.BirthDate,
-            patient.Description,
-            patient.Age);
-
-    private static UserResponseDto ToResponse(AppUserResponseDto user) =>
-        new(
-            user.UserId,
-            user.TenantId,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.Phone is null
-                ? null
-                : new PhoneNumberResponseDto(user.Phone.PhoneId, user.Phone.Number),
-            new RoleResponseDto(user.Role.RoleId, user.Role.Name));
-
-    private static PsychologistSummaryResponseDto ToResponse(
-        AppPsychologistSummaryResponseDto psychologist) =>
-        new(
-            psychologist.PsychologistId,
-            psychologist.FirstName,
-            psychologist.LastName,
-            new SpecialtyResponseDto(
-                psychologist.Specialty.SpecialtyId,
-                psychologist.Specialty.SpecialtyName),
-            psychologist.LicenseNumber);
 }

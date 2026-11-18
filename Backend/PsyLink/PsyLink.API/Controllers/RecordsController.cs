@@ -1,17 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
+using PsyLink.Application.Features.PatientRecords.DTOs;
+using PsyLink.Application.Features.Diagnoses.DTOs;
+using PsyLink.Application.Features.Prescriptions.DTOs;
 using PsyLink.Application.Features.Diagnoses.Services.Commands;
 using PsyLink.Application.Features.PatientRecords.Services.Commands;
 using PsyLink.Application.Features.PatientRecords.Services.Queries;
 using PsyLink.Application.Features.Prescriptions.Services.Commands;
 using PsyLink.API.Authorization;
-using AppRecordCreateRequestDto = PsyLink.Application.Features.PatientRecords.DTOs.RecordCreateRequestDto;
-using AppRecordDiagnosisRequestDto = PsyLink.Application.Features.Diagnoses.DTOs.RecordDiagnosisRequestDto;
-using AppRecordUpdateRequestDto = PsyLink.Application.Features.PatientRecords.DTOs.RecordUpdateRequestDto;
-using AppPrescriptionRequestDto = PsyLink.Application.Features.Prescriptions.DTOs.PrescriptionRequestDto;
-using AppPrescriptionUpdateRequestDto = PsyLink.Application.Features.Prescriptions.DTOs.PrescriptionUpdateRequestDto;
 
 namespace PsyLink.API.Controllers;
 
@@ -34,18 +31,12 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new CreatePatientRecordCommand(new AppRecordCreateRequestDto
-            {
-                PatientId = request.PatientId,
-                AppointmentId = request.AppointmentId,
-                RiskScore = request.RiskScore
-            }),
+            new CreatePatientRecordCommand(request),
             cancellationToken);
-        var response = RecordDetailResponseMapper.ToResponse(result);
         return CreatedAtAction(
             nameof(GetById),
-            new { recordId = response.RecordId },
-            response);
+            new { recordId = result.RecordId },
+            result);
     }
 
     [HttpGet("{recordId:guid}")]
@@ -60,7 +51,7 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetRecordByIdQuery(recordId), cancellationToken);
-        return Ok(RecordDetailResponseMapper.ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPatch("{recordId:guid}")]
@@ -78,11 +69,9 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpdatePatientRecordCommand(
-                recordId,
-                new AppRecordUpdateRequestDto { RiskScore = request.RiskScore }),
+            new UpdatePatientRecordCommand(recordId, request),
             cancellationToken);
-        return Ok(RecordDetailResponseMapper.ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPut("{recordId:guid}/diagnoses/{diagnosisId:guid}")]
@@ -101,18 +90,9 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpsertRecordDiagnosisCommand(
-                recordId,
-                diagnosisId,
-                new AppRecordDiagnosisRequestDto { Notes = request.Notes }),
+            new UpsertRecordDiagnosisCommand(recordId, diagnosisId, request),
             cancellationToken);
-        return Ok(new RecordDiagnosisResponseDto(
-            result.RecordId,
-            new DiagnosisDetailResponseDto(
-                result.Diagnosis.DiagnosisId,
-                result.Diagnosis.Name,
-                result.Diagnosis.Description),
-            result.Notes));
+        return Ok(result);
     }
 
     [HttpDelete("{recordId:guid}/diagnoses/{diagnosisId:guid}")]
@@ -147,20 +127,12 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new CreatePrescriptionCommand(
-                recordId,
-                new AppPrescriptionRequestDto
-                {
-                    MedicationId = request.MedicationId,
-                    Dosage = request.Dosage,
-                    Quantity = request.Quantity
-                }),
+            new CreatePrescriptionCommand(recordId, request),
             cancellationToken);
-        var response = RecordDetailResponseMapper.ToPrescriptionResponse(result);
         return CreatedAtAction(
             nameof(GetById),
-            new { recordId = response.RecordId },
-            response);
+            new { recordId = result.RecordId },
+            result);
     }
 
     [HttpPut("{recordId:guid}/prescriptions/{prescriptionId:guid}")]
@@ -178,17 +150,9 @@ public sealed class RecordsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpdatePrescriptionCommand(
-                recordId,
-                prescriptionId,
-                new AppPrescriptionUpdateRequestDto
-                {
-                    MedicationId = request.MedicationId,
-                    Dosage = request.Dosage,
-                    Quantity = request.Quantity
-                }),
+            new UpdatePrescriptionCommand(recordId, prescriptionId, request),
             cancellationToken);
-        return Ok(RecordDetailResponseMapper.ToPrescriptionResponse(result));
+        return Ok(result);
     }
 
     [HttpDelete("{recordId:guid}/prescriptions/{prescriptionId:guid}")]

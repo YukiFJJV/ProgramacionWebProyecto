@@ -1,21 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Psychologists.Services.Commands;
 using PsyLink.Application.Features.Psychologists.Services.Queries;
 using PsyLink.Application.Features.Schedules.Services.Commands;
 using PsyLink.Application.Features.Schedules.Services.Queries;
 using PsyLink.API.Authorization;
-using AppPsychologistCreateRequestDto = PsyLink.Application.Features.Psychologists.DTOs.PsychologistCreateRequestDto;
-using AppPsychologistDetailResponseDto = PsyLink.Application.Features.Psychologists.DTOs.PsychologistDetailResponseDto;
-using AppPsychologistSummaryResponseDto = PsyLink.Application.Features.Psychologists.DTOs.PsychologistSummaryResponseDto;
-using AppAvailabilityQueryDto = PsyLink.Application.Features.Psychologists.DTOs.AvailabilityQueryDto;
-using AppUserCreateRequestDto = PsyLink.Application.Features.Users.DTOs.UserCreateRequestDto;
-using AppUserResponseDto = PsyLink.Application.Features.Users.DTOs.UserResponseDto;
-using AppScheduleRequestDto = PsyLink.Application.Features.Schedules.DTOs.ScheduleRequestDto;
-using AppScheduleResponseDto = PsyLink.Application.Features.Schedules.DTOs.WorkScheduleResponseDto;
 
+using PsyLink.Application.Features.Psychologists.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
+using PsyLink.Application.Features.Schedules.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -38,28 +33,12 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new RegisterPsychologistCommand(new AppPsychologistCreateRequestDto
-            {
-                User = new AppUserCreateRequestDto
-                {
-                    Email = request.User.Email,
-                    Password = request.User.Password,
-                    FirstName = request.User.FirstName,
-                    LastName = request.User.LastName,
-                    PhoneNumber = request.User.PhoneNumber,
-                    RoleId = request.User.RoleId
-                },
-                SpecialtyId = request.SpecialtyId,
-                LicenseNumber = request.LicenseNumber,
-                AdminId = request.AdminId
-            }),
+            new RegisterPsychologistCommand(request),
             cancellationToken);
-
-        var response = ToResponse(result);
         return CreatedAtAction(
             nameof(GetById),
-            new { psychologistId = response.PsychologistId },
-            response);
+            new { psychologistId = result.PsychologistId },
+            result);
     }
 
     [HttpGet]
@@ -85,16 +64,7 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
                 query.SortDirection),
             cancellationToken);
 
-        var response = new PageResponseDto<PsychologistSummaryResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.Page,
-            result.PageSize,
-            result.TotalItems,
-            result.TotalPages,
-            result.HasPrevious,
-            result.HasNext);
-
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpGet("{psychologistId:guid}")]
@@ -112,7 +82,7 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new GetPsychologistProfileQuery(psychologistId),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPost("{psychologistId:guid}/schedules")]
@@ -130,21 +100,12 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new CreateWorkScheduleCommand(
-                psychologistId,
-                new AppScheduleRequestDto
-                {
-                    WeekDay = request.WeekDay,
-                    StartsAt = request.StartsAt,
-                    EndsAt = request.EndsAt
-                }),
+            new CreateWorkScheduleCommand(psychologistId, request),
             cancellationToken);
-
-        var response = ToResponse(result);
         return CreatedAtAction(
             nameof(GetSchedules),
-            new { psychologistId = response.PsychologistId },
-            response);
+            new { psychologistId = result.PsychologistId },
+            result);
     }
 
     [HttpGet("{psychologistId:guid}/schedules")]
@@ -162,7 +123,7 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new GetWorkSchedulesQuery(psychologistId),
             cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
 
     [HttpGet("{psychologistId:guid}/availability")]
@@ -180,68 +141,8 @@ public sealed class PsychologistsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new GetPsychologistAvailabilityQuery(
-                psychologistId,
-                new AppAvailabilityQueryDto
-                {
-                    DateFrom = query.DateFrom,
-                    DateTo = query.DateTo,
-                    DurationMinutes = query.DurationMinutes,
-                    Timezone = query.Timezone
-                }),
+            new GetPsychologistAvailabilityQuery(psychologistId, query),
             cancellationToken);
-
-        return Ok(result.Select(availability => new AvailabilityResponseDto(
-            availability.PsychologistId,
-            availability.Date,
-            availability.Slots.Select(slot =>
-                new AvailabilitySlotDto(slot.StartsAt, slot.EndsAt)).ToList())).ToList());
+        return Ok(result);
     }
-
-    private static PsychologistSummaryResponseDto ToResponse(
-        AppPsychologistSummaryResponseDto psychologist) =>
-        new(
-            psychologist.PsychologistId,
-            psychologist.FirstName,
-            psychologist.LastName,
-            new SpecialtyResponseDto(
-                psychologist.Specialty.SpecialtyId,
-                psychologist.Specialty.SpecialtyName),
-            psychologist.LicenseNumber);
-
-    private static ScheduleResponseDto ToResponse(AppScheduleResponseDto schedule) =>
-        new(
-            schedule.ScheduleId,
-            schedule.PsychologistId,
-            schedule.WeekDay.ToString().ToUpperInvariant(),
-            schedule.StartsAt,
-            schedule.EndsAt);
-
-    private static PsychologistDetailResponseDto ToResponse(
-        AppPsychologistDetailResponseDto psychologist) =>
-        new(
-            psychologist.PsychologistId,
-            ToResponse(psychologist.User),
-            new SpecialtyResponseDto(
-                psychologist.Specialty.SpecialtyId,
-                psychologist.Specialty.SpecialtyName),
-            psychologist.LicenseNumber,
-            psychologist.Schedules.Select(schedule => new ScheduleResponseDto(
-                schedule.ScheduleId,
-                schedule.PsychologistId,
-                schedule.WeekDay.ToString(),
-                schedule.StartsAt,
-                schedule.EndsAt)).ToList());
-
-    private static UserResponseDto ToResponse(AppUserResponseDto user) =>
-        new(
-            user.UserId,
-            user.TenantId,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.Phone is null
-                ? null
-                : new PhoneNumberResponseDto(user.Phone.PhoneId, user.Phone.Number),
-            new RoleResponseDto(user.Role.RoleId, user.Role.Name));
 }

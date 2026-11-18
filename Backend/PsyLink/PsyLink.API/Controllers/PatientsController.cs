@@ -1,17 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.PatientRecords.Services.Queries;
 using PsyLink.Application.Features.Diagnoses.Services.Commands;
 using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.API.Authorization;
-using AppPatientCreateRequestDto = PsyLink.Application.Features.Patients.DTOs.PatientCreateRequestDto;
-using AppPatientResponseDto = PsyLink.Application.Features.Patients.DTOs.PatientResponseDto;
-using AppPatientDiagnosisResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.PatientDiagnosisResponseDto;
-using AppUserCreateRequestDto = PsyLink.Application.Features.Users.DTOs.UserCreateRequestDto;
-using AppUserResponseDto = PsyLink.Application.Features.Users.DTOs.UserResponseDto;
 
+using PsyLink.Application.Features.Patients.DTOs;
+using PsyLink.Application.Features.Diagnoses.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
+using PsyLink.Application.Features.PatientRecords.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -33,27 +32,12 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new RegisterPatientCommand(new AppPatientCreateRequestDto
-            {
-                User = new AppUserCreateRequestDto
-                {
-                    Email = request.User.Email,
-                    Password = request.User.Password,
-                    FirstName = request.User.FirstName,
-                    LastName = request.User.LastName,
-                    PhoneNumber = request.User.PhoneNumber,
-                    RoleId = request.User.RoleId
-                },
-                BirthDate = request.BirthDate,
-                Description = request.Description
-            }),
+            new RegisterPatientCommand(request),
             cancellationToken);
-
-        var response = ToResponse(result);
         return CreatedAtAction(
             nameof(GetById),
-            new { patientId = response.PatientId },
-            response);
+            new { patientId = result.PatientId },
+            result);
     }
 
     [HttpGet]
@@ -78,16 +62,7 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
                 query.SortDirection),
             cancellationToken);
 
-        var response = new PageResponseDto<PatientResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.Page,
-            result.PageSize,
-            result.TotalItems,
-            result.TotalPages,
-            result.HasPrevious,
-            result.HasNext);
-
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpGet("{patientId:guid}")]
@@ -103,7 +78,7 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetPatientByIdQuery(patientId), cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpGet("{patientId:guid}/record")]
@@ -119,7 +94,7 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetPatientRecordQuery(patientId), cancellationToken);
-        return Ok(RecordDetailResponseMapper.ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPut("{patientId:guid}")]
@@ -154,7 +129,7 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
                 request.DescriptionSpecified),
             cancellationToken);
 
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpGet("{patientId:guid}/diagnoses")]
@@ -172,7 +147,7 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new GetPatientDiagnosesQuery(patientId),
             cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
 
     [HttpPut("{patientId:guid}/diagnoses/{diagnosisId:guid}")]
@@ -197,39 +172,6 @@ public sealed class PatientsController(ISender mediator) : ControllerBase
                 request.StatusId,
                 request.Notes),
             cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
-
-    private static PatientResponseDto ToResponse(AppPatientResponseDto patient) =>
-        new(
-            patient.PatientId,
-            ToResponse(patient.User),
-            patient.BirthDate,
-            patient.Description,
-            patient.Age);
-
-    private static UserResponseDto ToResponse(AppUserResponseDto user) =>
-        new(
-            user.UserId,
-            user.TenantId,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.Phone is null
-                ? null
-                : new PhoneNumberResponseDto(user.Phone.PhoneId, user.Phone.Number),
-            new RoleResponseDto(user.Role.RoleId, user.Role.Name));
-
-    private static PatientDiagnosisResponseDto ToResponse(
-        AppPatientDiagnosisResponseDto patientDiagnosis) =>
-        new(
-            patientDiagnosis.PatientId,
-            new DiagnosisDetailResponseDto(
-                patientDiagnosis.Diagnosis.DiagnosisId,
-                patientDiagnosis.Diagnosis.Name,
-                patientDiagnosis.Diagnosis.Description),
-            new DiagnosisStatusResponseDto(
-                patientDiagnosis.Status.StatusId,
-                patientDiagnosis.Status.Name),
-            patientDiagnosis.UpdatedAt);
 }

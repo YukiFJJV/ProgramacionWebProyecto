@@ -1,14 +1,13 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Medications.Services.Commands;
 using PsyLink.Application.Features.Medications.Services.Queries;
 using PsyLink.API.Authorization;
-using AppMedicationCreateRequestDto = PsyLink.Application.Features.Medications.DTOs.MedicationCreateRequestDto;
-using AppMedicationQueryDto = PsyLink.Application.Features.Medications.DTOs.MedicationQueryDto;
-using AppMedicationResponseDto = PsyLink.Application.Features.Prescriptions.DTOs.MedicationResponseDto;
 
+using PsyLink.Application.Features.Medications.DTOs;
+using PsyLink.Application.Features.Prescriptions.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -28,25 +27,8 @@ public sealed class MedicationsController(ISender mediator) : ControllerBase
         [FromQuery] MedicationQueryDto query,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(
-            new GetMedicationsQuery(new AppMedicationQueryDto
-            {
-                Search = query.Search,
-                LaboratoryId = query.LaboratoryId,
-                IngredientId = query.IngredientId,
-                Page = query.Page,
-                PageSize = query.PageSize
-            }),
-            cancellationToken);
-
-        return Ok(new PageResponseDto<MedicationResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.Page,
-            result.PageSize,
-            result.TotalItems,
-            result.TotalPages,
-            result.HasPrevious,
-            result.HasNext));
+        var result = await mediator.Send(new GetMedicationsQuery(query), cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost]
@@ -59,42 +41,10 @@ public sealed class MedicationsController(ISender mediator) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MedicationResponseDto>> Create(
-        [FromBody] PsyLink.API.DTOs.MedicationCreateRequestDto request,
+        [FromBody] PsyLink.Application.Features.Medications.DTOs.MedicationCreateRequestDto request,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(
-            new CreateMedicationCommand(new AppMedicationCreateRequestDto
-            {
-                LaboratoryId = request.LaboratoryId,
-                Name = request.Name,
-                Content = request.Content,
-                Presentation = request.Presentation,
-                IngredientIds = request.IngredientIds ?? new List<Guid>()
-            }),
-            cancellationToken);
-        var response = ToResponse(result);
-        return CreatedAtAction(nameof(Get), null, response);
+        var result = await mediator.Send(new CreateMedicationCommand(request), cancellationToken);
+        return CreatedAtAction(nameof(Get), null, result);
     }
-
-    private static MedicationResponseDto ToResponse(AppMedicationResponseDto medication) =>
-        new(
-            medication.MedicationId,
-            medication.Name,
-            medication.Content,
-            medication.Presentation,
-            medication.Laboratory is null
-                ? null
-                : new LaboratoryResponseDto(
-                    medication.Laboratory.LaboratoryId,
-                    medication.Laboratory.Name,
-                    medication.Laboratory.Phone is null
-                        ? null
-                        : new PhoneNumberResponseDto(
-                            medication.Laboratory.Phone.PhoneId,
-                            medication.Laboratory.Phone.Number)),
-            medication.Ingredients
-                .Select(ingredient => new IngredientResponseDto(
-                    ingredient.IngredientId,
-                    ingredient.Name))
-                .ToList());
 }

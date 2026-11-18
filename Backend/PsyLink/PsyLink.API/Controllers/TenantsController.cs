@@ -1,8 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Tenants.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
+using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Features.Tenants.Services.Commands;
 using PsyLink.Application.Features.Tenants.Services.Queries;
 using PsyLink.API.Authorization;
@@ -31,12 +32,10 @@ public sealed class TenantsController(ISender mediator) : ControllerBase
                 request.PhoneNumber,
                 request.Rtn),
             cancellationToken);
-        var response = ToResponse(result);
-
         return CreatedAtAction(
             nameof(GetById),
-            new { tenantId = response.TenantId },
-            response);
+            new { tenantId = result.TenantId },
+            result);
     }
 
     [HttpGet]
@@ -60,17 +59,7 @@ public sealed class TenantsController(ISender mediator) : ControllerBase
                 query.SortDirection),
             cancellationToken);
 
-        var totalPages = (int)Math.Ceiling(result.TotalCount / (double)result.PageSize);
-        var response = new PageResponseDto<TenantResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.PageNumber,
-            result.PageSize,
-            result.TotalCount,
-            totalPages,
-            result.PageNumber > 1,
-            result.PageNumber < totalPages);
-
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpGet("{tenantId:guid}")]
@@ -91,7 +80,7 @@ public sealed class TenantsController(ISender mediator) : ControllerBase
 
         return result.Items.Count == 0
             ? NotFound()
-            : Ok(ToResponse(result.Items[0]));
+            : Ok(result.Items[0]);
     }
 
     [HttpPut("{tenantId:guid}")]
@@ -122,18 +111,6 @@ public sealed class TenantsController(ISender mediator) : ControllerBase
                 request.Active),
             cancellationToken);
 
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
-
-    private static TenantResponseDto ToResponse(
-        TenantDto tenant) =>
-        new(
-            tenant.TenantId,
-            tenant.Name,
-            tenant.Email,
-            tenant.Rtn,
-            tenant.Phone is null || tenant.PhoneId is null
-                ? null
-                : new PhoneNumberResponseDto(tenant.PhoneId.Value, tenant.Phone),
-            tenant.Active);
 }

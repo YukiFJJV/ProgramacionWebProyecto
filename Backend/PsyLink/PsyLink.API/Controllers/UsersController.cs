@@ -1,13 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Users.Services.Commands;
 using PsyLink.Application.Features.Users.Services.Queries;
 using PsyLink.API.Authorization;
-using AppUserCreateRequestDto = PsyLink.Application.Features.Users.DTOs.UserCreateRequestDto;
-using AppUserResponseDto = PsyLink.Application.Features.Users.DTOs.UserResponseDto;
 
+using PsyLink.Application.Features.Users.DTOs;
+using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -27,23 +26,11 @@ public sealed class UsersController(ISender mediator) : ControllerBase
         [FromBody] UserCreateRequestDto request,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(
-            new CreateUserCommand(new AppUserCreateRequestDto
-            {
-                Email = request.Email,
-                Password = request.Password,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                PhoneNumber = request.PhoneNumber,
-                RoleId = request.RoleId
-            }),
-            cancellationToken);
-
-        var response = ToResponse(result);
+        var result = await mediator.Send(new CreateUserCommand(request), cancellationToken);
         return CreatedAtAction(
             nameof(GetById),
-            new { userId = response.UserId },
-            response);
+            new { userId = result.UserId },
+            result);
     }
 
     [HttpGet]
@@ -67,17 +54,7 @@ public sealed class UsersController(ISender mediator) : ControllerBase
                 query.SortDirection),
             cancellationToken);
 
-        var totalPages = (int)Math.Ceiling(result.TotalCount / (double)result.PageSize);
-        var response = new PageResponseDto<UserResponseDto>(
-            result.Items.Select(ToResponse).ToList(),
-            result.PageNumber,
-            result.PageSize,
-            result.TotalCount,
-            totalPages,
-            result.PageNumber > 1,
-            result.PageNumber < totalPages);
-
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpGet("{userId:guid}")]
@@ -92,7 +69,7 @@ public sealed class UsersController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetUserByIdQuery(userId), cancellationToken);
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
 
     [HttpPut("{userId:guid}")]
@@ -126,18 +103,6 @@ public sealed class UsersController(ISender mediator) : ControllerBase
                 request.ActiveSpecified),
             cancellationToken);
 
-        return Ok(ToResponse(result));
+        return Ok(result);
     }
-
-    private static UserResponseDto ToResponse(AppUserResponseDto user) =>
-        new(
-            user.UserId,
-            user.TenantId,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.Phone is null
-                ? null
-                : new PhoneNumberResponseDto(user.Phone.PhoneId, user.Phone.Number),
-            new RoleResponseDto(user.Role.RoleId, user.Role.Name));
 }

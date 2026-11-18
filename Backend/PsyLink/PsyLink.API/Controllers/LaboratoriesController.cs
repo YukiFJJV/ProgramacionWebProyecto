@@ -1,11 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Medications.Services.Queries;
 using PsyLink.API.Authorization;
-using AppLaboratoryResponseDto = PsyLink.Application.Features.Prescriptions.DTOs.LaboratoryResponseDto;
 
+using PsyLink.Application.Features.Prescriptions.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -23,16 +22,6 @@ public sealed class LaboratoriesController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetLaboratoriesQuery(), cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
-
-    private static LaboratoryResponseDto ToResponse(AppLaboratoryResponseDto laboratory) =>
-        new(
-            laboratory.LaboratoryId,
-            laboratory.Name,
-            laboratory.Phone is null
-                ? null
-                : new PhoneNumberResponseDto(
-                    laboratory.Phone.PhoneId,
-                    laboratory.Phone.Number));
 }

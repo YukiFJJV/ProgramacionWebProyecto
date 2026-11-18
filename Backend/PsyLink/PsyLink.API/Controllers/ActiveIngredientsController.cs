@@ -1,11 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Medications.Services.Queries;
 using PsyLink.API.Authorization;
-using AppIngredientResponseDto = PsyLink.Application.Features.Prescriptions.DTOs.IngredientResponseDto;
 
+using PsyLink.Application.Features.Prescriptions.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -23,9 +22,6 @@ public sealed class ActiveIngredientsController(ISender mediator) : ControllerBa
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetActiveIngredientsQuery(), cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
-
-    private static IngredientResponseDto ToResponse(AppIngredientResponseDto ingredient) =>
-        new(ingredient.IngredientId, ingredient.Name);
 }

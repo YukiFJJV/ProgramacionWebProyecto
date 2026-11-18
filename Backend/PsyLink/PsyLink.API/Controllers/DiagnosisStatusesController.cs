@@ -1,11 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PsyLink.API.DTOs;
 using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.API.Authorization;
-using AppDiagnosisStatusResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisStatusResponseDto;
 
+using PsyLink.Application.Features.Diagnoses.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
@@ -23,9 +22,6 @@ public sealed class DiagnosisStatusesController(ISender mediator) : ControllerBa
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetDiagnosisStatusesQuery(), cancellationToken);
-        return Ok(result.Select(ToResponse).ToList());
+        return Ok(result);
     }
-
-    private static DiagnosisStatusResponseDto ToResponse(AppDiagnosisStatusResponseDto status) =>
-        new(status.StatusId, status.Name);
 }
