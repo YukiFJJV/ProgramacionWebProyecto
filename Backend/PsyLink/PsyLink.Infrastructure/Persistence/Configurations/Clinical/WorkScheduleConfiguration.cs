@@ -58,7 +58,9 @@ public class WorkScheduleConfiguration : IEntityTypeConfiguration<WorkSchedule>
         builder.HasIndex(w => new
         {
             w.PsychologistId,
-            w.WeekDay
+            w.WeekDay,
+            w.StartsAt,
+            w.EndsAt
         });
 
         builder.HasIndex(w => w.TenantId);

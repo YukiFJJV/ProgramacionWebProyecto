@@ -74,7 +74,8 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.HasIndex(a => new
         {
             a.PsychologistId,
-            a.DateAt
+            a.DateAt,
+            a.StartsAt
         });
 
         builder.HasIndex(a => new

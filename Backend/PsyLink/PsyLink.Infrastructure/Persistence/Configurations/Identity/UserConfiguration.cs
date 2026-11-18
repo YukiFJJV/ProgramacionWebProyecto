@@ -67,5 +67,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(u => u.RoleId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(u => new
+        {
+            u.TenantId,
+            u.Email
+        }).IsUnique();
     }
 }
