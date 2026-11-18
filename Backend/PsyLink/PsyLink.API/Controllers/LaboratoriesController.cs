@@ -10,9 +10,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
-[Route("api/[controller]")]
 [Route("laboratories")]
-public sealed class LaboratoriesController(IMediator mediator) : ControllerBase
+public sealed class LaboratoriesController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List laboratories")]

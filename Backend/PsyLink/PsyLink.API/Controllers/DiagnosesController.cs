@@ -14,9 +14,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
 [Route("diagnoses")]
-public sealed class DiagnosesController(IMediator mediator) : ControllerBase
+public sealed class DiagnosesController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [Authorize(Roles = Roles.Admin + "," + Roles.Psychologist)]

@@ -10,9 +10,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
-[Route("api/active-ingredients")]
 [Route("active-ingredients")]
-public sealed class ActiveIngredientsController(IMediator mediator) : ControllerBase
+public sealed class ActiveIngredientsController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List active ingredients")]

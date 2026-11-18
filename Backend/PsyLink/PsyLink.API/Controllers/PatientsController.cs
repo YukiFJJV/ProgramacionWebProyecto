@@ -16,9 +16,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
 [Route("patients")]
-public sealed class PatientsController(IMediator mediator) : ControllerBase
+public sealed class PatientsController(ISender mediator) : ControllerBase
 {
     [HttpPost]
     [Authorize(Roles = Roles.Admin)]
@@ -51,7 +50,10 @@ public sealed class PatientsController(IMediator mediator) : ControllerBase
             cancellationToken);
 
         var response = ToResponse(result);
-        return Created($"/patients/{response.PatientId}", response);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { patientId = response.PatientId },
+            response);
     }
 
     [HttpGet]

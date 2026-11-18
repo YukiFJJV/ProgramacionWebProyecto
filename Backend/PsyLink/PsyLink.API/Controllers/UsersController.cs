@@ -12,9 +12,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
-[Route("api/[controller]")]
 [Route("users")]
-public sealed class UsersController(IMediator mediator) : ControllerBase
+public sealed class UsersController(ISender mediator) : ControllerBase
 {
     [HttpPost]
     [EndpointSummary("Create a tenant user")]
@@ -41,7 +40,10 @@ public sealed class UsersController(IMediator mediator) : ControllerBase
             cancellationToken);
 
         var response = ToResponse(result);
-        return Created($"/users/{response.UserId}", response);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { userId = response.UserId },
+            response);
     }
 
     [HttpGet]

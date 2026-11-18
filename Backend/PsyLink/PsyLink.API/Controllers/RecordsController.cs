@@ -17,9 +17,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Psychologist)]
-[Route("api/records")]
 [Route("records")]
-public sealed class RecordsController(IMediator mediator) : ControllerBase
+public sealed class RecordsController(ISender mediator) : ControllerBase
 {
     [HttpPost]
     [EndpointSummary("Create a patient's clinical record")]
@@ -43,7 +42,10 @@ public sealed class RecordsController(IMediator mediator) : ControllerBase
             }),
             cancellationToken);
         var response = RecordDetailResponseMapper.ToResponse(result);
-        return Created($"/records/{response.RecordId}", response);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { recordId = response.RecordId },
+            response);
     }
 
     [HttpGet("{recordId:guid}")]
@@ -155,8 +157,9 @@ public sealed class RecordsController(IMediator mediator) : ControllerBase
                 }),
             cancellationToken);
         var response = RecordDetailResponseMapper.ToPrescriptionResponse(result);
-        return Created(
-            $"/records/{response.RecordId}/prescriptions/{response.PrescriptionId}",
+        return CreatedAtAction(
+            nameof(GetById),
+            new { recordId = response.RecordId },
             response);
     }
 

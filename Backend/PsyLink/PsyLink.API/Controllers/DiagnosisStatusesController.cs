@@ -10,9 +10,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Psychologist)]
-[Route("api/diagnosis-statuses")]
 [Route("diagnosis-statuses")]
-public sealed class DiagnosisStatusesController(IMediator mediator) : ControllerBase
+public sealed class DiagnosisStatusesController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List patient diagnosis statuses")]

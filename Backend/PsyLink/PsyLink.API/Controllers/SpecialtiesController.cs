@@ -11,9 +11,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
 [Route("specialties")]
-public sealed class SpecialtiesController(IMediator mediator) : ControllerBase
+public sealed class SpecialtiesController(ISender mediator) : ControllerBase
 {
     [HttpPost]
     [Authorize(Roles = Roles.Admin)]
@@ -32,7 +31,7 @@ public sealed class SpecialtiesController(IMediator mediator) : ControllerBase
             new CreateSpecialtyCommand(request.SpecialtyName),
             cancellationToken);
         var response = ToResponse(result);
-        return Created($"/specialties/{response.SpecialtyId}", response);
+        return CreatedAtAction(nameof(Get), null, response);
     }
 
     [HttpGet]

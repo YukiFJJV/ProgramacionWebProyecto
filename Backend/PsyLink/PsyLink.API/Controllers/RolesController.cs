@@ -9,9 +9,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
-[Route("api/[controller]")]
 [Route("roles")]
-public sealed class RolesController(IMediator mediator) : ControllerBase
+public sealed class RolesController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List roles assignable by an administrator")]

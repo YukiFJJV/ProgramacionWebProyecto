@@ -10,9 +10,8 @@ using PsyLink.API.Authorization;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 [Route("tenants")]
-public sealed class TenantsController(IMediator mediator) : ControllerBase
+public sealed class TenantsController(ISender mediator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost]
@@ -34,7 +33,10 @@ public sealed class TenantsController(IMediator mediator) : ControllerBase
             cancellationToken);
         var response = ToResponse(result);
 
-        return Created($"/tenants/{response.TenantId}", response);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { tenantId = response.TenantId },
+            response);
     }
 
     [HttpGet]
@@ -87,12 +89,9 @@ public sealed class TenantsController(IMediator mediator) : ControllerBase
             new GetTenantsQuery(Search: tenantId.ToString(), PageSize: 1),
             cancellationToken);
 
-        if (result.Items.Count == 0)
-        {
-            return NotFound();
-        }
-
-        return Ok(ToResponse(result.Items[0]));
+        return result.Items.Count == 0
+            ? NotFound()
+            : Ok(ToResponse(result.Items[0]));
     }
 
     [HttpPut("{tenantId:guid}")]

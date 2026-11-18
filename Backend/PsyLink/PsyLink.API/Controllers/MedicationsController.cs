@@ -13,9 +13,8 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
 [Route("medications")]
-public sealed class MedicationsController(IMediator mediator) : ControllerBase
+public sealed class MedicationsController(ISender mediator) : ControllerBase
 {
     [HttpGet]
     [Authorize(Roles = Roles.Admin + "," + Roles.Psychologist)]
@@ -74,7 +73,7 @@ public sealed class MedicationsController(IMediator mediator) : ControllerBase
             }),
             cancellationToken);
         var response = ToResponse(result);
-        return Created($"/medications/{response.MedicationId}", response);
+        return CreatedAtAction(nameof(Get), null, response);
     }
 
     private static MedicationResponseDto ToResponse(AppMedicationResponseDto medication) =>

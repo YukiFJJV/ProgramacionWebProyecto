@@ -8,10 +8,9 @@ using PsyLink.Application.Features.Authentication.Services.Commands;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 [Route("auth")]
 public sealed class AuthController(
-    IMediator mediator) : ControllerBase
+    ISender mediator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("login")]
