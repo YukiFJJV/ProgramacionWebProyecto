@@ -2,9 +2,11 @@ using PsyLink.API;
 using PsyLink.Application;
 using PsyLink.Infrastructure;
 using Scalar.AspNetCore;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApiServices(builder.Configuration);
