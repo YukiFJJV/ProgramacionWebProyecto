@@ -37,13 +37,17 @@ public static class DependencyInjection
         // IDENTITY REPOSITORIES
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
         // CLINICAL REPOSITORIES
         services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IPatientDiagnosisRepository, PatientDiagnosisRepository>();
         services.AddScoped<IPsychologistRepository, PsychologistRepository>();
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
         services.AddScoped<IDiagnosisCatalogRepository, DiagnosisCatalogRepository>();
         services.AddScoped<IMedicationRepository, MedicationRepository>();
+        services.AddScoped<ILaboratoryRepository, LaboratoryRepository>();
+        services.AddScoped<IActiveIngredientRepository, ActiveIngredientRepository>();
         services.AddScoped<IPatientRecordRepository, PatientRecordRepository>();
         services.AddScoped<IRecordDiagnosisRepository, RecordDiagnosisRepository>();
         services.AddScoped<IWorkScheduleRepository, WorkScheduleRepository>();
