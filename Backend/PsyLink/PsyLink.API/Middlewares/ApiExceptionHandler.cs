@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using PsyLink.Application.Common.Exceptions;
 
 namespace PsyLink.API.Middlewares;
 
@@ -55,10 +56,12 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
 
         var (statusCode, title) = exception switch
         {
-            KeyNotFoundException => (StatusCodes.Status404NotFound, "Not Found"),
-            UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
-            InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
-            ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
+            NotFoundException => (StatusCodes.Status404NotFound, "Not Found"),
+            ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden"),
+            UnauthenticatedException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflict"),
+            BusinessRuleException => (StatusCodes.Status400BadRequest, "Bad Request"),
+            DomainApplicationException => (StatusCodes.Status422UnprocessableEntity, "Domain Rule Violation"),
             _ => (0, string.Empty)
         };
 
@@ -74,7 +77,7 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
             {
                 Status = statusCode,
                 Title = title,
-                Detail = title,
+                Detail = exception.Message,
                 Instance = httpContext.Request.Path
             },
             cancellationToken);

@@ -17,31 +17,65 @@ public sealed class UpdateTenantHandler(
     {
         if (currentUser.RoleName != RoleNames.SuperAdmin)
         {
-            throw new UnauthorizedAccessException("La operación requiere el rol SUPER_ADMIN.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere el rol SUPER_ADMIN.");
         }
 
         var tenant = await tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la empresa {request.TenantId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {request.TenantId}.");
 
-        if (await tenantRepository.ExistsByNameAsync(request.Name, request.TenantId, cancellationToken))
+        if (request.Name is not null &&
+            await tenantRepository.ExistsByNameAsync(request.Name, request.TenantId, cancellationToken))
         {
-            throw new ValidationException(
-                new[] { new ValidationFailure(nameof(request.Name), "Ya existe una empresa con ese nombre.") });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una empresa con ese nombre.");
         }
 
-        if (await tenantRepository.ExistsByRtnAsync(request.Rtn, request.TenantId, cancellationToken))
+        if (request.RtnSpecified &&
+            request.Rtn is not null &&
+            await tenantRepository.ExistsByRtnAsync(request.Rtn, request.TenantId, cancellationToken))
         {
-            throw new ValidationException(
-                new[] { new ValidationFailure(nameof(request.Rtn), "Ya existe una empresa con ese RTN.") });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una empresa con ese RTN.");
         }
 
-        tenant.Phone ??= new PhoneNumber { PhoneId = Guid.NewGuid() };
-        tenant.Phone.Number = request.Phone;
-        tenant.PhoneId = tenant.Phone.PhoneId;
-        tenant.Name = request.Name;
-        tenant.Email = request.Email;
-        tenant.Rtn = request.Rtn;
-        tenant.Active = request.Active;
+        if (request.Name is not null)
+        {
+            tenant.Name = request.Name.Trim();
+        }
+
+        if (request.EmailSpecified)
+        {
+            tenant.Email = string.IsNullOrWhiteSpace(request.Email)
+                ? null
+                : request.Email.Trim();
+        }
+
+        if (request.RtnSpecified)
+        {
+            tenant.Rtn = string.IsNullOrWhiteSpace(request.Rtn)
+                ? null
+                : request.Rtn.Trim();
+        }
+
+        if (request.PhoneSpecified)
+        {
+            if (string.IsNullOrWhiteSpace(request.Phone))
+            {
+                tenant.Phone = null;
+                tenant.PhoneId = null;
+            }
+            else
+            {
+                tenant.Phone ??= new PhoneNumber { PhoneId = Guid.NewGuid() };
+                tenant.Phone.Number = request.Phone.Trim();
+                tenant.PhoneId = tenant.Phone.PhoneId;
+            }
+        }
+
+        if (request.Active.HasValue)
+        {
+            tenant.Active = request.Active.Value;
+        }
 
         await tenantRepository.UpdateAsync(tenant, cancellationToken);
 
@@ -50,7 +84,8 @@ public sealed class UpdateTenantHandler(
             TenantId = tenant.TenantId,
             Name = tenant.Name,
             Email = tenant.Email,
-            Phone = tenant.Phone.Number,
+            Phone = tenant.Phone?.Number,
+            PhoneId = tenant.Phone?.PhoneId,
             Rtn = tenant.Rtn,
             Active = tenant.Active
         };

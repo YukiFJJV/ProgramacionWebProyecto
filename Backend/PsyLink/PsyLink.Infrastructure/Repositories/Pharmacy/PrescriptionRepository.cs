@@ -41,7 +41,6 @@ public sealed class PrescriptionRepository : IPrescriptionRepository
             prescription,
             cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(
@@ -49,7 +48,7 @@ public sealed class PrescriptionRepository : IPrescriptionRepository
         CancellationToken cancellationToken = default)
     {
         _context.Prescriptions.Update(prescription);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 
     public async Task DeleteAsync(
@@ -57,6 +56,6 @@ public sealed class PrescriptionRepository : IPrescriptionRepository
         CancellationToken cancellationToken = default)
     {
         _context.Prescriptions.Remove(prescription);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

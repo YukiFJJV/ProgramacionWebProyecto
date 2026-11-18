@@ -20,6 +20,9 @@ public sealed class CurrentUserService : ICurrentUserService
     private ClaimsPrincipal? User =>
         _httpContextAccessor.HttpContext?.User;
 
+    public bool IsAuthenticated =>
+        User?.Identity?.IsAuthenticated == true;
+
     public Guid UserId
     {
         get

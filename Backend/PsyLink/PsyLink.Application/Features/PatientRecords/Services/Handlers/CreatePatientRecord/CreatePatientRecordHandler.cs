@@ -24,11 +24,21 @@ public sealed class CreatePatientRecordHandler(
                 input.PatientId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el paciente {input.PatientId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el paciente {input.PatientId}.");
+
+        if (!await appointmentRepository.HasActiveCareRelationshipAsync(
+                patient.PatientId,
+                currentUser.UserId,
+                tenantId,
+                cancellationToken))
+        {
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
+                "El psicólogo no mantiene una relación asistencial activa con este paciente.");
+        }
 
         if (await recordRepository.ExistsByPatientIdAsync(patient.PatientId, tenantId, cancellationToken))
         {
-            throw new InvalidOperationException("El paciente ya tiene un expediente clínico.");
+            throw new PsyLink.Application.Common.Exceptions.ConflictException("El paciente ya tiene un expediente clínico.");
         }
 
         Appointment? appointment = null;
@@ -38,13 +48,19 @@ public sealed class CreatePatientRecordHandler(
                     appointmentId,
                     tenantId,
                     cancellationToken)
-                ?? throw new KeyNotFoundException($"No se encontró la cita {appointmentId}.");
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la cita {appointmentId}.");
 
             if (appointment.PatientId != patient.PatientId ||
                 appointment.Psychologist.UserId != currentUser.UserId)
             {
-                throw new UnauthorizedAccessException(
+                throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                     "El expediente debe originarse en una cita del paciente atendida por el psicólogo autenticado.");
+            }
+
+            if (appointment.Status == AppointmentStatus.Cancelled)
+            {
+                throw new FluentValidation.ValidationException(
+                    "No se puede crear un expediente a partir de una cita cancelada.");
             }
         }
 
@@ -60,7 +76,7 @@ public sealed class CreatePatientRecordHandler(
         record.UpdateRiskScore(input.RiskScore);
         if (!await recordRepository.AddIfPatientHasNoRecordAsync(record, cancellationToken))
         {
-            throw new InvalidOperationException("El paciente ya tiene un expediente clínico.");
+            throw new PsyLink.Application.Common.Exceptions.ConflictException("El paciente ya tiene un expediente clínico.");
         }
 
         var appointments = appointment is null

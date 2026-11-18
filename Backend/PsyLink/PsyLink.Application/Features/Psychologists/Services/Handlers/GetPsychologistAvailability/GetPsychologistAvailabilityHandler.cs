@@ -20,21 +20,22 @@ public sealed class GetPsychologistAvailabilityHandler(
     {
         var tenantId = currentUser.TenantId;
         if (tenantId is null ||
-            (currentUser.RoleName != RoleNames.Patient &&
+            (currentUser.RoleName != RoleNames.Admin &&
+             currentUser.RoleName != RoleNames.Patient &&
              currentUser.RoleName != RoleNames.Psychologist))
         {
-            throw new UnauthorizedAccessException(
-                "La consulta de disponibilidad requiere un paciente o psicólogo autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
+                "La consulta de disponibilidad requiere un administrador, paciente o psicólogo autenticado.");
         }
 
         var psychologist = await psychologistRepository.GetByIdForTenantAsync(
                 request.PsychologistId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
         if (!psychologist.User.Active)
         {
-            throw new KeyNotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
+            throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
         }
 
         var schedules = await workScheduleRepository.GetByPsychologistAsync(
@@ -48,7 +49,7 @@ public sealed class GetPsychologistAvailabilityHandler(
             cancellationToken);
         var timezone = TimeZoneInfo.FindSystemTimeZoneById(request.Availability.Timezone);
         var duration = TimeSpan.FromMinutes(request.Availability.DurationMinutes
-            ?? throw new InvalidOperationException("La duración de los slots debe especificarse."));
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("La duración de los slots debe especificarse."));
         var now = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timezone);
         var result = new List<AvailabilityResponseDto>();
 

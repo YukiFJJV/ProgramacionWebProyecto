@@ -17,19 +17,19 @@ public sealed class RegisterTenantValidator : AbstractValidator<RegisterTenantCo
             .WithMessage("Ya existe una empresa con ese nombre.");
 
         RuleFor(command => command.Email)
-            .NotEmpty()
-            .EmailAddress();
+            .EmailAddress()
+            .When(command => !string.IsNullOrWhiteSpace(command.Email));
 
-        RuleFor(command => command.Phone)
-            .NotEmpty()
+        RuleFor(command => command.PhoneNumber)
             .Matches(@"^\d{8}$")
+            .When(command => !string.IsNullOrWhiteSpace(command.PhoneNumber))
             .WithMessage("El teléfono debe contener exactamente 8 dígitos.");
 
         RuleFor(command => command.Rtn)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty()
             .MustAsync(async (rtn, cancellationToken) =>
+                string.IsNullOrWhiteSpace(rtn) ||
                 !await tenantRepository.ExistsByRtnAsync(rtn, cancellationToken: cancellationToken))
-            .WithMessage("Ya existe una empresa con ese RTN.");
+            .WithMessage("Ya existe una empresa con ese RTN.")
+            .When(command => !string.IsNullOrWhiteSpace(command.Rtn));
     }
 }

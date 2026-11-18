@@ -23,7 +23,10 @@ public interface IPsychologistRepository
         Guid tenantId,
         string? search,
         Guid? specialtyId,
+        DateOnly? availableOn,
         int page,
         int pageSize,
+        string sortBy,
+        string sortDirection,
         CancellationToken cancellationToken = default);
 }

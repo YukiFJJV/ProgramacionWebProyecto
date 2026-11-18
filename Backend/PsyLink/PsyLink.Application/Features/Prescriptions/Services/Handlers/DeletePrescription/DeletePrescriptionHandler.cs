@@ -27,7 +27,7 @@ public sealed class DeletePrescriptionHandler(
                 request.RecordId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la receta {request.PrescriptionId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la receta {request.PrescriptionId}.");
         await prescriptionRepository.DeleteAsync(prescription, cancellationToken);
         return Unit.Value;
     }

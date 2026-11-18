@@ -20,20 +20,24 @@ public sealed class GetPsychologistProfileHandler(
         CancellationToken cancellationToken)
     {
         var tenantId = currentUser.TenantId;
-        if (currentUser.RoleName != RoleNames.Patient || tenantId is null)
+        if ((currentUser.RoleName != RoleNames.Admin &&
+             currentUser.RoleName != RoleNames.Patient &&
+             currentUser.RoleName != RoleNames.Psychologist) ||
+            tenantId is null)
         {
-            throw new UnauthorizedAccessException("La consulta del perfil requiere un paciente autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
+                "La consulta del perfil requiere un administrador, paciente o psicólogo autenticado.");
         }
 
         var psychologist = await psychologistRepository.GetByIdForTenantAsync(
                 request.PsychologistId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
 
         if (!psychologist.User.Active)
         {
-            throw new KeyNotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
+            throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
         }
 
         var schedules = await workScheduleRepository.GetByPsychologistAsync(

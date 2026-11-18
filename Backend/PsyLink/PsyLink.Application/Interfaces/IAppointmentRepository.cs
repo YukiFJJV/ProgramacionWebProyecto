@@ -29,14 +29,14 @@ public interface IAppointmentRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns non-cancelled appointments for the psychologist, with patient and
-    /// user details loaded, filtered and paginated by the adapter.
+    /// Returns non-cancelled appointments within a tenant, filtered and paginated
+    /// with patient and psychologist display relationships loaded.
     /// </summary>
-    Task<(IReadOnlyList<Appointment> Items, int TotalCount)> GetByPsychologistWithPatientSearchAsync(
-        Guid psychologistId,
+    Task<(IReadOnlyList<Appointment> Items, int TotalCount)> GetByTenantWithPatientSearchAsync(
         Guid tenantId,
         string? patientSearch,
         Guid? patientId,
+        Guid? psychologistId,
         DateOnly? dateFrom,
         DateOnly? dateTo,
         int page,

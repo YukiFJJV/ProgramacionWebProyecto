@@ -16,10 +16,11 @@ public sealed class GetSpecialtiesHandler(
         CancellationToken cancellationToken)
     {
         if (currentUser.RoleName != RoleNames.Admin &&
-            currentUser.RoleName != RoleNames.Psychologist)
+            currentUser.RoleName != RoleNames.Psychologist &&
+            currentUser.RoleName != RoleNames.Patient)
         {
-            throw new UnauthorizedAccessException(
-                "La operación requiere el rol ADMIN o PSYCHOLOGIST.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
+                "La operación requiere el rol ADMIN, PSYCHOLOGIST o PATIENT.");
         }
 
         var specialties = await specialtyRepository.GetAllAsync(cancellationToken);

@@ -24,7 +24,7 @@ public sealed class ValidationBehavior<TRequest, TResponse>(
 
         if (failures.Count > 0)
         {
-            throw new ValidationException(failures);
+            throw new FluentValidation.ValidationException(failures);
         }
 
         return await next();

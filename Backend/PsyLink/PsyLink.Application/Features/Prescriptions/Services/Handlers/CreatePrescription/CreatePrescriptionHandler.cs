@@ -28,7 +28,7 @@ public sealed class CreatePrescriptionHandler(
         var medication = await medicationRepository.GetByIdAsync(
                 request.Prescription.MedicationId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException(
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException(
                 $"No se encontró el medicamento {request.Prescription.MedicationId}.");
 
         var prescription = new Prescription

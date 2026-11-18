@@ -35,7 +35,6 @@ public sealed class RecordDiagnosisRepository : IRecordDiagnosisRepository
             recordDiagnosis,
             cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(
@@ -43,6 +42,14 @@ public sealed class RecordDiagnosisRepository : IRecordDiagnosisRepository
         CancellationToken cancellationToken = default)
     {
         _context.RecordDiagnoses.Update(recordDiagnosis);
-        await _context.SaveChangesAsync(cancellationToken);
+
+    }
+
+    public async Task DeleteAsync(
+        RecordDiagnosis recordDiagnosis,
+        CancellationToken cancellationToken = default)
+    {
+        _context.RecordDiagnoses.Remove(recordDiagnosis);
+
     }
 }

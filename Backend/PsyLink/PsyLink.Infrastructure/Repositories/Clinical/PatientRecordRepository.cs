@@ -104,7 +104,6 @@ public sealed class PatientRecordRepository : IPatientRecordRepository
                 record,
                 cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             return true;
@@ -124,6 +123,6 @@ public sealed class PatientRecordRepository : IPatientRecordRepository
         CancellationToken cancellationToken = default)
     {
         _context.PatientRecords.Update(record);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

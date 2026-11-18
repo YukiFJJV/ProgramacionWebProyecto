@@ -34,7 +34,7 @@ public sealed class UpdatePatientRecordHandler(
                 record.PatientId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró expediente para el paciente {record.PatientId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró expediente para el paciente {record.PatientId}.");
         var appointments = await appointmentRepository.GetByPatientAndTenantAsync(
             record.PatientId,
             tenantId,

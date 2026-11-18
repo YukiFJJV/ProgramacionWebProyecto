@@ -18,17 +18,24 @@ public sealed class GetPsychologistsHandler(
         CancellationToken cancellationToken)
     {
         var tenantId = currentUser.TenantId;
-        if (currentUser.RoleName != RoleNames.Admin || tenantId is null)
+        if ((currentUser.RoleName != RoleNames.Admin &&
+             currentUser.RoleName != RoleNames.Patient &&
+             currentUser.RoleName != RoleNames.Psychologist) ||
+            tenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
+                "La operación requiere un usuario autenticado dentro de una empresa.");
         }
 
         var (psychologists, totalCount) = await psychologistRepository.SearchByTenantAsync(
             tenantId.Value,
             request.Search,
             request.SpecialtyId,
+            request.AvailableOn,
             request.Page,
             request.PageSize,
+            request.SortBy,
+            request.SortDirection,
             cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 

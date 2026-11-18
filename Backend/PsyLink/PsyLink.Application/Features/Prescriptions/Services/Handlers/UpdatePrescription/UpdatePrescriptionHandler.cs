@@ -29,12 +29,12 @@ public sealed class UpdatePrescriptionHandler(
                 request.RecordId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la receta {request.PrescriptionId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la receta {request.PrescriptionId}.");
 
         if (request.Update.MedicationId is Guid medicationId)
         {
             var medication = await medicationRepository.GetByIdAsync(medicationId, cancellationToken)
-                ?? throw new KeyNotFoundException($"No se encontró el medicamento {medicationId}.");
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el medicamento {medicationId}.");
             prescription.MedicationId = medication.MedicationId;
             prescription.Medication = medication;
         }

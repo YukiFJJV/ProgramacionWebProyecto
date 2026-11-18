@@ -20,25 +20,20 @@ public sealed class UpdateSpecialtyHandler(
         if (currentUser.RoleName != RoleNames.Admin &&
             currentUser.RoleName != RoleNames.Psychologist)
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "La operación requiere el rol ADMIN o PSYCHOLOGIST.");
         }
 
         var specialty = await specialtyRepository.GetByIdAsync(request.SpecialtyId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la especialidad {request.SpecialtyId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la especialidad {request.SpecialtyId}.");
 
         if (await specialtyRepository.ExistsByNameAsync(
                 request.SpecialtyName,
                 request.SpecialtyId,
                 cancellationToken))
         {
-            throw new ValidationException(
-                new[]
-                {
-                    new ValidationFailure(
-                        nameof(request.SpecialtyName),
-                        "Ya existe una especialidad con ese nombre.")
-                });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una especialidad con ese nombre.");
         }
 
         specialty.SpecialtyName = request.SpecialtyName;

@@ -22,7 +22,7 @@ public sealed class UpdateWorkScheduleHandler(
                 request.ScheduleId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el horario {request.ScheduleId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el horario {request.ScheduleId}.");
 
         var overlapping = await workScheduleRepository.GetOverlappingAsync(
             schedule.PsychologistId,
@@ -34,7 +34,7 @@ public sealed class UpdateWorkScheduleHandler(
             cancellationToken);
         if (overlapping.Count > 0)
         {
-            throw new ValidationException("El horario se traslapa con otro bloque del psicólogo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario se traslapa con otro bloque del psicólogo.");
         }
 
         schedule.WeekDay = (PsyLink.Domain.Clinical.WeekDay)(int)request.Schedule.WeekDay;
@@ -43,7 +43,7 @@ public sealed class UpdateWorkScheduleHandler(
 
         if (!await workScheduleRepository.UpdateIfNoOverlapAsync(schedule, cancellationToken))
         {
-            throw new ValidationException("El horario se traslapa con otro bloque del psicólogo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario se traslapa con otro bloque del psicólogo.");
         }
 
         return CreateWorkScheduleHandler.ToResponse(schedule);
@@ -53,7 +53,7 @@ public sealed class UpdateWorkScheduleHandler(
     {
         if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
         }
 
         return currentUser.TenantId.Value;

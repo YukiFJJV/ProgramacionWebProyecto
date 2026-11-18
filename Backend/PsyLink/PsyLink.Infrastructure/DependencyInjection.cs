@@ -11,6 +11,7 @@ using PsyLink.Infrastructure.Repositories.Clinical;
 using PsyLink.Infrastructure.Repositories.Pharmacy;
 using PsyLink.Infrastructure.Security;
 using PsyLink.Infrastructure.Services;
+using PsyLink.Application.Common.Interfaces;
 
 namespace PsyLink.Infrastructure;
 
@@ -33,6 +34,8 @@ public static class DependencyInjection
         // DATABASE
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
+        services.AddScoped<IUnitOfWork>(provider =>
+            provider.GetRequiredService<ApplicationDbContext>());
 
         // IDENTITY REPOSITORIES
         services.AddScoped<ITenantRepository, TenantRepository>();

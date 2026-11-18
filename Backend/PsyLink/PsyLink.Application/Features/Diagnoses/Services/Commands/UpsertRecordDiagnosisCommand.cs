@@ -7,4 +7,4 @@ public sealed record UpsertRecordDiagnosisCommand(
     Guid RecordId,
     Guid DiagnosisId,
     RecordDiagnosisRequestDto Diagnosis)
-    : IRequest<RecordDiagnosisResponseDto>;
+    : ICommand<RecordDiagnosisResponseDto>;

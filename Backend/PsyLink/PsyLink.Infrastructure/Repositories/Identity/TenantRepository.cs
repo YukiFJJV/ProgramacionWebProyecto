@@ -54,7 +54,7 @@ public sealed class TenantRepository : ITenantRepository
         CancellationToken cancellationToken = default)
     {
         await _context.Tenants.AddAsync(tenant, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 
     public Task<Tenant?> GetByIdAsync(
@@ -116,6 +116,6 @@ public sealed class TenantRepository : ITenantRepository
         CancellationToken cancellationToken = default)
     {
         _context.Tenants.Update(tenant);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

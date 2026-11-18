@@ -13,6 +13,7 @@ public sealed class RegisterPatientHandler(
     IUserRepository userRepository,
     ITenantRepository tenantRepository,
     IPatientRepository patientRepository,
+    IPasswordHasher passwordHasher,
     ICurrentUserService currentUser)
     : IRequestHandler<RegisterPatientCommand, PatientResponseDto>
 {
@@ -22,42 +23,48 @@ public sealed class RegisterPatientHandler(
     {
         EnsureCompanyAdmin();
 
-        var user = await userRepository.GetByIdAsync(request.Patient.UserId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la cuenta {request.Patient.UserId}.");
-        var role = await userRepository.GetRoleByIdAsync(user.RoleId, cancellationToken)
-            ?? throw new InvalidOperationException("La cuenta vinculada no tiene un rol válido.");
-        user.Role = role;
-
         var tenantId = currentUser.TenantId
-            ?? throw new InvalidOperationException("El usuario autenticado no tiene una empresa asignada.");
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("El usuario autenticado no tiene una empresa asignada.");
         var tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la empresa {tenantId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
 
         if (!tenant.Active)
         {
-            throw new ValidationException("No se pueden registrar pacientes en una empresa inactiva.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden registrar pacientes en una empresa inactiva.");
         }
 
-        if (!user.Active)
+        if (await userRepository.ExistsByEmailAsync(request.Patient.User.Email, cancellationToken))
         {
-            throw new ValidationException("La cuenta de usuario está inactiva.");
-        }
-
-        if (user.TenantId != tenant.TenantId || role.Name != RoleNames.Patient)
-        {
-            throw new ValidationException("La cuenta debe pertenecer a la empresa y tener el rol PATIENT.");
-        }
-
-        if (await patientRepository.ExistsByUserIdAsync(user.UserId, cancellationToken))
-        {
-            throw new ValidationException("La cuenta ya tiene un perfil de paciente registrado.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Ya existe una cuenta con ese correo electrónico.");
         }
 
         if (request.Patient.BirthDate > DateOnly.FromDateTime(DateTime.UtcNow))
         {
-            throw new ValidationException("La fecha de nacimiento no puede ser futura.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("La fecha de nacimiento no puede ser futura.");
         }
 
+        var role = await userRepository.GetRoleByNameAsync(RoleNames.Patient, cancellationToken)
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("No está configurado el rol PATIENT.");
+        var phone = string.IsNullOrWhiteSpace(request.Patient.User.PhoneNumber)
+            ? null
+            : new PhoneNumber
+            {
+                PhoneId = Guid.NewGuid(),
+                Number = request.Patient.User.PhoneNumber
+            };
+        var user = new User
+        {
+            UserId = Guid.NewGuid(),
+            TenantId = tenant.TenantId,
+            PhoneId = phone?.PhoneId,
+            Phone = phone,
+            RoleId = role.RoleId,
+            FirstName = request.Patient.User.FirstName,
+            LastName = request.Patient.User.LastName,
+            Email = request.Patient.User.Email,
+            PasswordHash = passwordHasher.Hash(request.Patient.User.Password),
+            Active = true
+        };
         var patient = new Patient
         {
             PatientId = Guid.NewGuid(),
@@ -65,12 +72,12 @@ public sealed class RegisterPatientHandler(
             TenantId = tenant.TenantId,
             BirthDate = request.Patient.BirthDate,
             Description = request.Patient.Description,
-            User = user,
-            Tenant = tenant
+            User = user
         };
 
-        await patientRepository.AddAsync(patient, cancellationToken);
+        await patientRepository.AddWithUserAsync(patient, user, cancellationToken);
 
+        user.Role = role;
         return new PatientResponseDto
         {
             PatientId = patient.PatientId,
@@ -85,7 +92,7 @@ public sealed class RegisterPatientHandler(
     {
         if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
         }
     }
 }

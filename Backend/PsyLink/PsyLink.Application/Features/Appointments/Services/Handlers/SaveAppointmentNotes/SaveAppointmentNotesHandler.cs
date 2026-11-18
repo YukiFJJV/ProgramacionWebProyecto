@@ -19,18 +19,18 @@ public sealed class SaveAppointmentNotesHandler(
         if (currentUser.TenantId is not Guid tenantId ||
             currentUser.RoleName != RoleNames.Psychologist)
         {
-            throw new UnauthorizedAccessException("Solo un psicólogo autenticado puede registrar notas de sesión.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("Solo un psicólogo autenticado puede registrar notas de sesión.");
         }
 
         var appointment = await appointmentRepository.GetByIdForTenantAsync(
                 request.AppointmentId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la cita {request.AppointmentId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la cita {request.AppointmentId}.");
 
         if (appointment.Psychologist.UserId != currentUser.UserId)
         {
-            throw new UnauthorizedAccessException("El psicólogo solo puede editar las notas de sus citas.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("El psicólogo solo puede editar las notas de sus citas.");
         }
 
         appointment.Complete();

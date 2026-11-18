@@ -24,13 +24,8 @@ public sealed class CreateSpecialtyHandler(
                 request.SpecialtyName,
                 cancellationToken: cancellationToken))
         {
-            throw new ValidationException(
-                new[]
-                {
-                    new ValidationFailure(
-                        nameof(request.SpecialtyName),
-                        "Ya existe una especialidad con ese nombre.")
-                });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una especialidad con ese nombre.");
         }
 
         var specialty = new Specialty
@@ -52,7 +47,7 @@ public sealed class CreateSpecialtyHandler(
         if (currentUser.RoleName != RoleNames.Admin &&
             currentUser.RoleName != RoleNames.Psychologist)
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "La operación requiere el rol ADMIN o PSYCHOLOGIST.");
         }
     }

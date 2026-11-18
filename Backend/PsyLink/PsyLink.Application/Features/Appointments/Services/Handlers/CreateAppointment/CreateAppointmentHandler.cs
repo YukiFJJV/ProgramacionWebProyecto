@@ -26,24 +26,24 @@ public sealed class CreateAppointmentHandler(
             (currentUser.RoleName != RoleNames.Patient &&
              currentUser.RoleName != RoleNames.Psychologist))
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "La programación requiere un paciente o psicólogo autenticado.");
         }
 
         var input = request.Appointment;
         if (input.EndsAt <= input.StartsAt)
         {
-            throw new ValidationException("La hora final debe ser posterior a la hora inicial.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("La hora final debe ser posterior a la hora inicial.");
         }
 
         var psychologist = await psychologistRepository.GetByIdForTenantAsync(
                 input.PsychologistId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el psicólogo {input.PsychologistId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {input.PsychologistId}.");
         if (!psychologist.User.Active)
         {
-            throw new ValidationException("No se pueden programar citas con un psicólogo inactivo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden programar citas con un psicólogo inactivo.");
         }
 
         Patient patient;
@@ -51,22 +51,22 @@ public sealed class CreateAppointmentHandler(
         {
             if (input.PatientId.HasValue)
             {
-                throw new ValidationException("El paciente de la cita se obtiene de la sesión autenticada.");
+                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El paciente de la cita se obtiene de la sesión autenticada.");
             }
 
             patient = await patientRepository.GetByUserIdAsync(currentUser.UserId, tenantId.Value, cancellationToken)
-                ?? throw new KeyNotFoundException("No se encontró el perfil de paciente autenticado.");
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException("No se encontró el perfil de paciente autenticado.");
         }
         else
         {
             if (input.PatientId is null)
             {
-                throw new ValidationException("El psicólogo debe especificar el paciente para la cita.");
+                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El psicólogo debe especificar el paciente para la cita.");
             }
 
             if (psychologist.UserId != currentUser.UserId)
             {
-                throw new UnauthorizedAccessException(
+                throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                     "Un psicólogo solo puede programar citas en su propia agenda.");
             }
 
@@ -74,7 +74,7 @@ public sealed class CreateAppointmentHandler(
                     input.PatientId.Value,
                     tenantId.Value,
                     cancellationToken)
-                ?? throw new KeyNotFoundException($"No se encontró el paciente {input.PatientId}.");
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el paciente {input.PatientId}.");
 
             var record = await patientRecordRepository.GetByPatientIdAsync(
                 patient.PatientId,
@@ -82,14 +82,14 @@ public sealed class CreateAppointmentHandler(
                 cancellationToken);
             if (record?.RiskScore != RiskLevel.Urgent)
             {
-                throw new ValidationException(
+                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException(
                     "El psicólogo solo puede programar directamente para pacientes con nivel de riesgo 3.");
             }
         }
 
         if (!patient.User.Active)
         {
-            throw new ValidationException("No se puede programar una cita para un paciente inactivo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se puede programar una cita para un paciente inactivo.");
         }
 
         var schedules = await workScheduleRepository.GetByPsychologistAsync(
@@ -99,7 +99,7 @@ public sealed class CreateAppointmentHandler(
         if (!schedules.Any(schedule =>
                 schedule.Covers(input.DateAt.ToWeekDay(), input.StartsAt, input.EndsAt)))
         {
-            throw new ValidationException("La cita debe estar dentro del horario laboral del psicólogo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("La cita debe estar dentro del horario laboral del psicólogo.");
         }
 
         if (await appointmentRepository.HasOverlapAsync(
@@ -109,7 +109,7 @@ public sealed class CreateAppointmentHandler(
                 input.EndsAt,
                 cancellationToken: cancellationToken))
         {
-            throw new ValidationException("El horario seleccionado se traslapa con otra cita.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");
         }
 
         var appointment = new Appointment
@@ -127,7 +127,7 @@ public sealed class CreateAppointmentHandler(
         };
         if (!await appointmentRepository.AddIfNoOverlapAsync(appointment, cancellationToken))
         {
-            throw new ValidationException("El horario seleccionado se traslapa con otra cita.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");
         }
 
         return ToResponse(appointment);

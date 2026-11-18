@@ -22,35 +22,36 @@ public sealed class CreateUserHandler(
 
         if (await userRepository.ExistsByEmailAsync(request.User.Email, cancellationToken))
         {
-            throw new ValidationException("Ya existe una cuenta con ese correo electrónico.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Ya existe una cuenta con ese correo electrónico.");
         }
 
         var tenantId = currentUser.TenantId
-            ?? throw new InvalidOperationException("El usuario autenticado no tiene una empresa asignada.");
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("El usuario autenticado no tiene una empresa asignada.");
         var tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la empresa {tenantId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
         if (!tenant.Active)
         {
-            throw new ValidationException("No se pueden registrar usuarios en una empresa inactiva.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden registrar usuarios en una empresa inactiva.");
         }
 
         var role = await userRepository.GetRoleByIdAsync(request.User.RoleId, cancellationToken);
         if (role is null || role.Name == RoleNames.SuperAdmin)
         {
-            throw new ValidationException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
         }
 
-        var phone = new PhoneNumber
-        {
-            PhoneId = Guid.NewGuid(),
-            Number = request.User.PhoneNumber
-                ?? throw new ValidationException("El teléfono es obligatorio.")
-        };
+        var phone = request.User.PhoneNumber is null
+            ? null
+            : new PhoneNumber
+            {
+                PhoneId = Guid.NewGuid(),
+                Number = request.User.PhoneNumber
+            };
         var user = new User
         {
             UserId = Guid.NewGuid(),
             TenantId = tenant.TenantId,
-            PhoneId = phone.PhoneId,
+            PhoneId = phone?.PhoneId,
             Phone = phone,
             RoleId = role.RoleId,
             Role = role,
@@ -69,7 +70,7 @@ public sealed class CreateUserHandler(
     {
         if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
         }
     }
 
@@ -77,7 +78,7 @@ public sealed class CreateUserHandler(
     {
         if (user.TenantId is null)
         {
-            throw new InvalidOperationException("La cuenta registrada no tiene una empresa asignada.");
+            throw new PsyLink.Application.Common.Exceptions.ConflictException("La cuenta registrada no tiene una empresa asignada.");
         }
 
         return new UserResponseDto

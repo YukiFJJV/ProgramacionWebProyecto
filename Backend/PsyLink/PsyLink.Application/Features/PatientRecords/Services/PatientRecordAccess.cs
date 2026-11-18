@@ -11,7 +11,7 @@ internal static class PatientRecordAccess
         if (currentUser.TenantId is not Guid tenantId ||
             currentUser.RoleName != RoleNames.Psychologist)
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "La operación requiere un psicólogo autenticado dentro de una empresa.");
         }
 
@@ -30,7 +30,7 @@ internal static class PatientRecordAccess
                 recordId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el expediente {recordId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el expediente {recordId}.");
 
         if (!await appointmentRepository.HasActiveCareRelationshipAsync(
                 record.PatientId,
@@ -38,7 +38,7 @@ internal static class PatientRecordAccess
                 tenantId,
                 cancellationToken))
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "El psicólogo no mantiene una relación asistencial activa con este paciente.");
         }
 

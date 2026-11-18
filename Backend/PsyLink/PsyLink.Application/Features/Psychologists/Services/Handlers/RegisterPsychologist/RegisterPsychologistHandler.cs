@@ -28,32 +28,32 @@ public sealed class RegisterPsychologistHandler(
         var userRequest = request.Psychologist.User;
         if (await userRepository.ExistsByEmailAsync(userRequest.Email, cancellationToken))
         {
-            throw new ValidationException("Ya existe una cuenta con ese correo electrónico.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Ya existe una cuenta con ese correo electrónico.");
         }
 
         if (await psychologistRepository.ExistsByLicenseNumberAsync(
                 request.Psychologist.LicenseNumber,
                 cancellationToken))
         {
-            throw new ValidationException("El número de licencia ya está registrado.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El número de licencia ya está registrado.");
         }
 
         var tenantId = currentUser.TenantId
-            ?? throw new InvalidOperationException("El usuario autenticado no tiene una empresa asignada.");
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("El usuario autenticado no tiene una empresa asignada.");
         var tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la empresa {tenantId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
         if (!tenant.Active)
         {
-            throw new ValidationException("No se pueden registrar psicólogos en una empresa inactiva.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden registrar psicólogos en una empresa inactiva.");
         }
 
         var specialty = await specialtyRepository.GetByIdAsync(
                 request.Psychologist.SpecialtyId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException(
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException(
                 $"No se encontró la especialidad {request.Psychologist.SpecialtyId}.");
         var role = await userRepository.GetRoleByNameAsync(RoleNames.Psychologist, cancellationToken)
-            ?? throw new InvalidOperationException("No está configurado el rol PSYCHOLOGIST.");
+            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("No está configurado el rol PSYCHOLOGIST.");
 
         PhoneNumber? phone = null;
         if (!string.IsNullOrWhiteSpace(userRequest.PhoneNumber))
@@ -111,7 +111,7 @@ public sealed class RegisterPsychologistHandler(
     {
         if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
         }
     }
 }

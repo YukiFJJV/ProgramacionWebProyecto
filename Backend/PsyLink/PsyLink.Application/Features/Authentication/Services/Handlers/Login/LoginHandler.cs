@@ -18,12 +18,12 @@ public sealed class LoginHandler(
         var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (user is null || !user.Active || !passwordVerifier.Verify(request.Password, user.PasswordHash))
         {
-            throw new ValidationException("Correo electrónico o contraseña inválidos.");
+            throw new PsyLink.Application.Common.Exceptions.UnauthenticatedException("Correo electrónico o contraseña inválidos.");
         }
 
         if (string.IsNullOrWhiteSpace(user.Role?.Name))
         {
-            throw new InvalidOperationException("El usuario no tiene un rol válido asignado.");
+            throw new PsyLink.Application.Common.Exceptions.ConflictException("El usuario no tiene un rol válido asignado.");
         }
 
         var accessToken = tokenGenerator.GenerateToken(user);

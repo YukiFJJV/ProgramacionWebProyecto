@@ -24,7 +24,7 @@ public sealed class GetPatientRecordHandler(
                 tenantId,
                 cancellationToken))
         {
-            throw new UnauthorizedAccessException(
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException(
                 "El psicólogo no mantiene una relación asistencial activa con este paciente.");
         }
 
@@ -32,7 +32,7 @@ public sealed class GetPatientRecordHandler(
                 request.PatientId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró expediente para el paciente {request.PatientId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró expediente para el paciente {request.PatientId}.");
 
         var appointments = await appointmentRepository.GetByPatientAndTenantAsync(
             request.PatientId,

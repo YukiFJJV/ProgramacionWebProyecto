@@ -7,4 +7,4 @@ public sealed record UpdatePrescriptionCommand(
     Guid RecordId,
     Guid PrescriptionId,
     PrescriptionUpdateRequestDto Update)
-    : IRequest<PrescriptionResponseDto>;
+    : ICommand<PrescriptionResponseDto>;

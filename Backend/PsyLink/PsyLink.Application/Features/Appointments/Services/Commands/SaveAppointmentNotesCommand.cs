@@ -6,4 +6,4 @@ namespace PsyLink.Application.Features.Appointments.Services.Commands;
 public sealed record SaveAppointmentNotesCommand(
     Guid AppointmentId,
     AppointmentSessionNotesRequestDto Notes)
-    : IRequest<AppointmentSessionNotesResponseDto>;
+    : ICommand<AppointmentSessionNotesResponseDto>;

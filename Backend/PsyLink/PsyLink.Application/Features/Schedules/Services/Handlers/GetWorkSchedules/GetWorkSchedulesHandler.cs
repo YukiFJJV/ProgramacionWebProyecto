@@ -21,14 +21,14 @@ public sealed class GetWorkSchedulesHandler(
         if (tenantId is null ||
             (currentUser.RoleName != RoleNames.Admin && currentUser.RoleName != RoleNames.Patient))
         {
-            throw new UnauthorizedAccessException("La operación requiere el rol ADMIN o PATIENT.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere el rol ADMIN o PATIENT.");
         }
 
         _ = await psychologistRepository.GetByIdForTenantAsync(
                 request.PsychologistId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {request.PsychologistId}.");
 
         var schedules = await workScheduleRepository.GetByPsychologistAsync(
             request.PsychologistId,

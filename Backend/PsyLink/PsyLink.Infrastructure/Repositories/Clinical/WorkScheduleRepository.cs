@@ -101,7 +101,6 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
                 schedule,
                 cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             return true;
@@ -143,7 +142,6 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
 
             _context.WorkSchedules.Update(schedule);
 
-            await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             return true;

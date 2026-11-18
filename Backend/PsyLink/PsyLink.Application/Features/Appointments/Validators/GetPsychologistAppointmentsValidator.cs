@@ -16,6 +16,9 @@ public sealed class GetPsychologistAppointmentsValidator : AbstractValidator<Get
             RuleFor(request => request.Filter.PatientId)
                 .Must(patientId => patientId is null || patientId != Guid.Empty)
                 .WithMessage("El identificador del paciente no puede estar vacío.");
+            RuleFor(request => request.Filter.PsychologistId)
+                .Must(psychologistId => psychologistId is null || psychologistId != Guid.Empty)
+                .WithMessage("El identificador del psicólogo no puede estar vacío.");
             RuleFor(request => request.Filter.DateTo)
                 .GreaterThanOrEqualTo(request => request.Filter.DateFrom)
                 .When(request => request.Filter.DateFrom.HasValue && request.Filter.DateTo.HasValue);

@@ -12,4 +12,6 @@ public interface IRecordDiagnosisRepository
     Task AddAsync(RecordDiagnosis recordDiagnosis, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(RecordDiagnosis recordDiagnosis, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(RecordDiagnosis recordDiagnosis, CancellationToken cancellationToken = default);
 }

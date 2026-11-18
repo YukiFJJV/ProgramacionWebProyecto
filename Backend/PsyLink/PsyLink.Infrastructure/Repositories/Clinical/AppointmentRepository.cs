@@ -91,11 +91,11 @@ public sealed class AppointmentRepository : IAppointmentRepository
 
     public async Task<(
         IReadOnlyList<Appointment> Items,
-        int TotalCount)> GetByPsychologistWithPatientSearchAsync(
-            Guid psychologistId,
+        int TotalCount)> GetByTenantWithPatientSearchAsync(
             Guid tenantId,
             string? patientSearch,
             Guid? patientId,
+            Guid? psychologistId,
             DateOnly? dateFrom,
             DateOnly? dateTo,
             int page,
@@ -106,7 +106,6 @@ public sealed class AppointmentRepository : IAppointmentRepository
         var query = DisplayQuery()
             .AsNoTracking()
             .Where(a =>
-                a.PsychologistId == psychologistId &&
                 a.TenantId == tenantId &&
                 a.Status != AppointmentStatus.Cancelled);
 
@@ -114,6 +113,12 @@ public sealed class AppointmentRepository : IAppointmentRepository
         {
             query = query.Where(
                 a => a.PatientId == patientId.Value);
+        }
+
+        if (psychologistId.HasValue)
+        {
+            query = query.Where(
+                a => a.PsychologistId == psychologistId.Value);
         }
 
         if (dateFrom.HasValue)
@@ -143,8 +148,10 @@ public sealed class AppointmentRepository : IAppointmentRepository
         query = descending
             ? query.OrderByDescending(a => a.DateAt)
                 .ThenByDescending(a => a.StartsAt)
+                .ThenByDescending(a => a.AppointmentId)
             : query.OrderBy(a => a.DateAt)
-                .ThenBy(a => a.StartsAt);
+                .ThenBy(a => a.StartsAt)
+                .ThenBy(a => a.AppointmentId);
 
         var items = await query
             .Skip((page - 1) * pageSize)
@@ -223,7 +230,6 @@ public sealed class AppointmentRepository : IAppointmentRepository
             appointment,
             cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return true;
@@ -261,7 +267,6 @@ public sealed class AppointmentRepository : IAppointmentRepository
             _context.Appointments.Update(appointment);
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return true;

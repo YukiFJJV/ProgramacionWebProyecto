@@ -17,7 +17,7 @@ public sealed class GetAssignableRolesHandler(
     {
         if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador de empresa autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
         }
 
         var roles = await userRepository.GetAssignableRolesAsync(cancellationToken);

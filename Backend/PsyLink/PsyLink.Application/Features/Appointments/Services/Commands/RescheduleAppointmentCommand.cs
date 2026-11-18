@@ -6,4 +6,4 @@ namespace PsyLink.Application.Features.Appointments.Services.Commands;
 public record RescheduleAppointmentCommand(
     Guid AppointmentId,
     AppointmentUpdateRequestDto Update)
-    : IRequest<AppointmentResponseDto>;
+    : ICommand<AppointmentResponseDto>;

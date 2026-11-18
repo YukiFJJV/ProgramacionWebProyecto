@@ -3,4 +3,4 @@ using PsyLink.Application.Features.Schedules.DTOs;
 
 namespace PsyLink.Application.Features.Schedules.Services.Queries;
 
-public record GetWorkSchedulesQuery(Guid PsychologistId) : IRequest<IReadOnlyList<WorkScheduleResponseDto>>;
+public record GetWorkSchedulesQuery(Guid PsychologistId) : IQuery<IReadOnlyList<WorkScheduleResponseDto>>;

@@ -28,11 +28,11 @@ public sealed class UpsertRecordDiagnosisHandler(
         var diagnosis = await diagnosisCatalogRepository.GetByIdAsync(
                 request.DiagnosisId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el diagnóstico {request.DiagnosisId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el diagnóstico {request.DiagnosisId}.");
 
         if (!diagnosis.IsActive)
         {
-            throw new InvalidOperationException("No se puede asociar un diagnóstico inactivo al expediente.");
+            throw new PsyLink.Application.Common.Exceptions.ConflictException("No se puede asociar un diagnóstico inactivo al expediente.");
         }
 
         var recordDiagnosis = await recordDiagnosisRepository.GetByRecordAndDiagnosisAsync(

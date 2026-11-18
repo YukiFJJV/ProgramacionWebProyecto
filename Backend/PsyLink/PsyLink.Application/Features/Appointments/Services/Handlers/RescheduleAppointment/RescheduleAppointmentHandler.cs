@@ -25,14 +25,14 @@ public sealed class RescheduleAppointmentHandler(
         if (tenantId is null ||
             (currentUser.RoleName != RoleNames.Admin && currentUser.RoleName != RoleNames.Patient))
         {
-            throw new UnauthorizedAccessException("La operación requiere un administrador o paciente autenticado.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador o paciente autenticado.");
         }
 
         var appointment = await appointmentRepository.GetByIdForTenantAsync(
                 request.AppointmentId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la cita {request.AppointmentId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la cita {request.AppointmentId}.");
 
         var isPatient = currentUser.RoleName == RoleNames.Patient;
         if (isPatient)
@@ -41,15 +41,15 @@ public sealed class RescheduleAppointmentHandler(
                     currentUser.UserId,
                     tenantId.Value,
                     cancellationToken)
-                ?? throw new KeyNotFoundException("No se encontró el perfil de paciente autenticado.");
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException("No se encontró el perfil de paciente autenticado.");
             if (appointment.PatientId != patient.PatientId)
             {
-                throw new UnauthorizedAccessException("Un paciente solo puede reprogramar sus propias citas.");
+                throw new PsyLink.Application.Common.Exceptions.ForbiddenException("Un paciente solo puede reprogramar sus propias citas.");
             }
 
             if (!appointment.CanBeRescheduledByPatient)
             {
-                throw new ValidationException("El paciente solo puede reprogramar cada cita una vez.");
+                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El paciente solo puede reprogramar cada cita una vez.");
             }
         }
 
@@ -58,14 +58,14 @@ public sealed class RescheduleAppointmentHandler(
                 targetPsychologistId,
                 tenantId.Value,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró el psicólogo {targetPsychologistId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el psicólogo {targetPsychologistId}.");
         var dateAt = request.Update.DateAt ?? appointment.DateAt;
         var startsAt = request.Update.StartsAt ?? appointment.StartsAt;
         var endsAt = request.Update.EndsAt ?? appointment.EndsAt;
 
         if (endsAt <= startsAt)
         {
-            throw new ValidationException("La hora final debe ser posterior a la hora inicial.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("La hora final debe ser posterior a la hora inicial.");
         }
 
         var schedules = await workScheduleRepository.GetByPsychologistAsync(
@@ -74,7 +74,7 @@ public sealed class RescheduleAppointmentHandler(
             cancellationToken);
         if (!schedules.Any(schedule => schedule.Covers(dateAt.ToWeekDay(), startsAt, endsAt)))
         {
-            throw new ValidationException("La cita debe estar dentro del horario laboral del psicólogo.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("La cita debe estar dentro del horario laboral del psicólogo.");
         }
 
         if (await appointmentRepository.HasOverlapAsync(
@@ -85,7 +85,7 @@ public sealed class RescheduleAppointmentHandler(
                 appointment.AppointmentId,
                 cancellationToken))
         {
-            throw new ValidationException("El horario seleccionado se traslapa con otra cita.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");
         }
 
         appointment.Reschedule(dateAt, startsAt, endsAt);
@@ -94,7 +94,7 @@ public sealed class RescheduleAppointmentHandler(
 
         if (!await appointmentRepository.UpdateIfNoOverlapAsync(appointment, cancellationToken))
         {
-            throw new ValidationException("El horario seleccionado se traslapa con otra cita.");
+            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El horario seleccionado se traslapa con otra cita.");
         }
 
         return CreateAppointmentHandler.ToResponse(appointment);

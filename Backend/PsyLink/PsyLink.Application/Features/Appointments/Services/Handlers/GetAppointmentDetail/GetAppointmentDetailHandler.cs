@@ -8,7 +8,8 @@ namespace PsyLink.Application.Features.Appointments.Services.Handlers.GetAppoint
 
 public sealed class GetAppointmentDetailHandler(
     IAppointmentRepository appointmentRepository,
-    IAppointmentNotesRepository appointmentNotesRepository,
+    IPatientRepository patientRepository,
+    IPsychologistRepository psychologistRepository,
     ICurrentUserService currentUser)
     : IRequestHandler<GetAppointmentDetailQuery, AppointmentDetailResponseDto>
 {
@@ -17,29 +18,44 @@ public sealed class GetAppointmentDetailHandler(
         CancellationToken cancellationToken)
     {
         if (currentUser.TenantId is not Guid tenantId ||
-            currentUser.RoleName != RoleNames.Psychologist)
+            (currentUser.RoleName != RoleNames.Admin &&
+             currentUser.RoleName != RoleNames.Psychologist &&
+             currentUser.RoleName != RoleNames.Patient))
         {
-            throw new UnauthorizedAccessException("Solo un psicólogo autenticado puede consultar estas citas.");
+            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador, paciente o psicólogo.");
         }
 
         var appointment = await appointmentRepository.GetByIdForTenantAsync(
                 request.AppointmentId,
                 tenantId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException($"No se encontró la cita {request.AppointmentId}.");
+            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la cita {request.AppointmentId}.");
 
-        if (appointment.Psychologist.UserId != currentUser.UserId)
+        if (currentUser.RoleName == RoleNames.Psychologist)
         {
-            throw new UnauthorizedAccessException("El psicólogo solo puede consultar sus propias citas.");
+            var psychologist = await psychologistRepository.GetByUserIdForTenantAsync(
+                    currentUser.UserId,
+                    tenantId,
+                    cancellationToken)
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException("No se encontró el perfil de psicólogo autenticado.");
+            if (appointment.PsychologistId != psychologist.PsychologistId)
+            {
+                throw new PsyLink.Application.Common.Exceptions.ForbiddenException("El psicólogo solo puede consultar sus propias citas.");
+            }
+        }
+        else if (currentUser.RoleName == RoleNames.Patient)
+        {
+            var patient = await patientRepository.GetByUserIdAsync(
+                    currentUser.UserId,
+                    tenantId,
+                    cancellationToken)
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException("No se encontró el perfil de paciente autenticado.");
+            if (appointment.PatientId != patient.PatientId)
+            {
+                throw new PsyLink.Application.Common.Exceptions.ForbiddenException("El paciente solo puede consultar sus propias citas.");
+            }
         }
 
-        var response = AppointmentDtoMapper.ToDetail(appointment);
-        var notes = await appointmentNotesRepository.GetByAppointmentIdAsync(
-            appointment.AppointmentId,
-            tenantId,
-            cancellationToken);
-        response.SessionNotes = notes?.Notes;
-        response.NotesUpdatedAt = notes?.UpdatedAt;
-        return response;
+        return AppointmentDtoMapper.ToDetail(appointment);
     }
 }

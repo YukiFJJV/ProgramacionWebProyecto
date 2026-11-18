@@ -67,11 +67,13 @@ public sealed class PsychologistRepository : IPsychologistRepository
         Psychologist psychologist,
         CancellationToken cancellationToken = default)
     {
+        _context.Attach(psychologist.Tenant);
+        _context.Attach(psychologist.Specialty);
+        _context.Attach(psychologist.User.Role);
         await _context.Psychologists.AddAsync(
             psychologist,
             cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<(
@@ -80,8 +82,11 @@ public sealed class PsychologistRepository : IPsychologistRepository
         Guid tenantId,
         string? search,
         Guid? specialtyId,
+        DateOnly? availableOn,
         int page,
         int pageSize,
+        string sortBy,
+        string sortDirection,
         CancellationToken cancellationToken = default)
     {
         var query = ProfileQuery()
@@ -106,15 +111,122 @@ public sealed class PsychologistRepository : IPsychologistRepository
                 p.Specialty.SpecialtyName.ToLower().Contains(term));
         }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        if (availableOn.HasValue)
+        {
+            var date = availableOn.Value;
+            var day = date.ToWeekDay();
+            var candidates = await query
+                .Include(psychologist => psychologist.Schedules)
+                .Include(psychologist => psychologist.Appointments.Where(appointment =>
+                    appointment.DateAt == date &&
+                    (appointment.Status == AppointmentStatus.Pending ||
+                     appointment.Status == AppointmentStatus.Confirmed)))
+                .ToListAsync(cancellationToken);
+            var available = candidates
+                .Where(psychologist => HasAvailability(psychologist, date, day));
+            var totalAvailable = available.Count();
+            var pageItems = OrderInMemory(available, sortBy, sortDirection)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-        var psychologists = await query
-            .OrderBy(p => p.User.LastName)
-            .ThenBy(p => p.User.FirstName)
+            return (pageItems, totalAvailable);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var descending = sortDirection.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        var orderedQuery = sortBy.ToLowerInvariant() switch
+        {
+            "firstname" => descending
+                ? query.OrderByDescending(psychologist => psychologist.User.FirstName)
+                : query.OrderBy(psychologist => psychologist.User.FirstName),
+            "licensenumber" => descending
+                ? query.OrderByDescending(psychologist => psychologist.LicenseNumber)
+                : query.OrderBy(psychologist => psychologist.LicenseNumber),
+            "specialtyname" => descending
+                ? query.OrderByDescending(psychologist => psychologist.Specialty.SpecialtyName)
+                : query.OrderBy(psychologist => psychologist.Specialty.SpecialtyName),
+            _ => descending
+                ? query.OrderByDescending(psychologist => psychologist.User.LastName)
+                : query.OrderBy(psychologist => psychologist.User.LastName)
+        };
+        var psychologists = await orderedQuery
+            .ThenBy(psychologist => psychologist.User.FirstName)
+            .ThenBy(psychologist => psychologist.PsychologistId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
         return (psychologists, totalCount);
+    }
+
+    private static bool HasAvailability(
+        Psychologist psychologist,
+        DateOnly date,
+        WeekDay day)
+    {
+        foreach (var schedule in psychologist.Schedules.Where(schedule => schedule.WeekDay == day))
+        {
+            var availableUntil = schedule.StartsAt;
+            var appointments = psychologist.Appointments
+                .Where(appointment =>
+                    appointment.DateAt == date &&
+                    appointment.Status is AppointmentStatus.Pending or AppointmentStatus.Confirmed &&
+                    appointment.StartsAt < schedule.EndsAt &&
+                    schedule.StartsAt < appointment.EndsAt)
+                .OrderBy(appointment => appointment.StartsAt);
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.StartsAt > availableUntil)
+                {
+                    return true;
+                }
+
+                if (appointment.EndsAt > availableUntil)
+                {
+                    availableUntil = appointment.EndsAt;
+                }
+
+                if (availableUntil >= schedule.EndsAt)
+                {
+                    break;
+                }
+            }
+
+            if (availableUntil < schedule.EndsAt)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IOrderedEnumerable<Psychologist> OrderInMemory(
+        IEnumerable<Psychologist> psychologists,
+        string sortBy,
+        string sortDirection)
+    {
+        var descending = sortDirection.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        var ordered = sortBy.ToLowerInvariant() switch
+        {
+            "firstname" => descending
+                ? psychologists.OrderByDescending(psychologist => psychologist.User.FirstName, StringComparer.OrdinalIgnoreCase)
+                : psychologists.OrderBy(psychologist => psychologist.User.FirstName, StringComparer.OrdinalIgnoreCase),
+            "licensenumber" => descending
+                ? psychologists.OrderByDescending(psychologist => psychologist.LicenseNumber, StringComparer.OrdinalIgnoreCase)
+                : psychologists.OrderBy(psychologist => psychologist.LicenseNumber, StringComparer.OrdinalIgnoreCase),
+            "specialtyname" => descending
+                ? psychologists.OrderByDescending(psychologist => psychologist.Specialty.SpecialtyName, StringComparer.OrdinalIgnoreCase)
+                : psychologists.OrderBy(psychologist => psychologist.Specialty.SpecialtyName, StringComparer.OrdinalIgnoreCase),
+            _ => descending
+                ? psychologists.OrderByDescending(psychologist => psychologist.User.LastName, StringComparer.OrdinalIgnoreCase)
+                : psychologists.OrderBy(psychologist => psychologist.User.LastName, StringComparer.OrdinalIgnoreCase)
+        };
+
+        return ordered
+            .ThenBy(psychologist => psychologist.User.FirstName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(psychologist => psychologist.PsychologistId);
     }
 }

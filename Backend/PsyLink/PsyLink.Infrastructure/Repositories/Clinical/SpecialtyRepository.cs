@@ -42,7 +42,6 @@ public sealed class SpecialtyRepository : ISpecialtyRepository
             specialty,
             cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public Task<Specialty?> GetByIdAsync(
@@ -70,6 +69,6 @@ public sealed class SpecialtyRepository : ISpecialtyRepository
         CancellationToken cancellationToken = default)
     {
         _context.Specialties.Update(specialty);
-        await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

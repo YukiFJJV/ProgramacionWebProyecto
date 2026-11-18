@@ -5,10 +5,11 @@ using PsyLink.Domain.Identity;
 using PsyLink.Domain.Clinical;
 using PsyLink.Domain.Pharmacy;
 using PsyLink.Domain.Billing;
+using PsyLink.Application.Common.Interfaces;
 
 namespace PsyLink.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IUnitOfWork
 {
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options)

@@ -17,28 +17,31 @@ public sealed class RegisterTenantHandler(ITenantRepository tenantRepository)
     {
         if (await tenantRepository.ExistsByNameAsync(request.Name, cancellationToken: cancellationToken))
         {
-            throw new ValidationException(
-                new[] { new ValidationFailure(nameof(request.Name), "Ya existe una empresa con ese nombre.") });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una empresa con ese nombre.");
         }
 
-        if (await tenantRepository.ExistsByRtnAsync(request.Rtn, cancellationToken: cancellationToken))
+        if (!string.IsNullOrWhiteSpace(request.Rtn) &&
+            await tenantRepository.ExistsByRtnAsync(request.Rtn, cancellationToken: cancellationToken))
         {
-            throw new ValidationException(
-                new[] { new ValidationFailure(nameof(request.Rtn), "Ya existe una empresa con ese RTN.") });
+            throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                "Ya existe una empresa con ese RTN.");
         }
 
-        var phone = new PhoneNumber
-        {
-            PhoneId = Guid.NewGuid(),
-            Number = request.Phone
-        };
+        var phone = string.IsNullOrWhiteSpace(request.PhoneNumber)
+            ? null
+            : new PhoneNumber
+            {
+                PhoneId = Guid.NewGuid(),
+                Number = request.PhoneNumber.Trim()
+            };
         var tenant = new Tenant
         {
             TenantId = Guid.NewGuid(),
-            Name = request.Name,
-            Email = request.Email,
-            Rtn = request.Rtn,
-            PhoneId = phone.PhoneId,
+            Name = request.Name.Trim(),
+            Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim(),
+            Rtn = string.IsNullOrWhiteSpace(request.Rtn) ? null : request.Rtn.Trim(),
+            PhoneId = phone?.PhoneId,
             Phone = phone,
             Active = true
         };
@@ -50,7 +53,8 @@ public sealed class RegisterTenantHandler(ITenantRepository tenantRepository)
             TenantId = tenant.TenantId,
             Name = tenant.Name,
             Email = tenant.Email,
-            Phone = tenant.Phone.Number,
+            Phone = tenant.Phone?.Number,
+            PhoneId = tenant.Phone?.PhoneId,
             Rtn = tenant.Rtn,
             Active = tenant.Active
         };
