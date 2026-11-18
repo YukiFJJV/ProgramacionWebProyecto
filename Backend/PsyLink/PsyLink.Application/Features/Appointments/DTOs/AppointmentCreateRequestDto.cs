@@ -1,10 +1,10 @@
 namespace PsyLink.Application.Features.Appointments.DTOs;
 
-public class AppointmentCreateRequestDto
+public sealed record AppointmentCreateRequestDto
 {
-    public Guid PsychologistId { get; set; }
-    public Guid? PatientId { get; set; }
-    public DateOnly DateAt { get; set; }
-    public TimeOnly StartsAt { get; set; }
-    public TimeOnly EndsAt { get; set; }
+    public Guid PsychologistId { get; init; }
+    public Guid? PatientId { get; init; }
+    public DateOnly DateAt { get; init; }
+    public TimeOnly StartsAt { get; init; }
+    public TimeOnly EndsAt { get; init; }
 }

@@ -2,9 +2,9 @@ using PsyLink.Application.Features.Users.DTOs;
 
 namespace PsyLink.Application.Features.Patients.DTOs;
 
-public class PatientCreateRequestDto
+public sealed record PatientCreateRequestDto
 {
-    public UserCreateRequestDto User { get; set; } = new();
-    public DateOnly BirthDate { get; set; }
-    public string? Description { get; set; }
+    public UserCreateRequestDto User { get; init; } = new();
+    public DateOnly BirthDate { get; init; }
+    public string? Description { get; init; }
 }

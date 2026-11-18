@@ -2,10 +2,10 @@ using PsyLink.Application.Features.Users.DTOs;
 
 namespace PsyLink.Application.Features.Psychologists.DTOs;
 
-public class PsychologistCreateRequestDto
+public sealed record PsychologistCreateRequestDto
 {
-    public UserCreateRequestDto User { get; set; } = new();
-    public Guid SpecialtyId { get; set; }
-    public string LicenseNumber { get; set; } = string.Empty;
-    public Guid? AdminId { get; set; }
+    public UserCreateRequestDto User { get; init; } = new();
+    public Guid SpecialtyId { get; init; }
+    public string LicenseNumber { get; init; } = string.Empty;
+    public Guid? AdminId { get; init; }
 }
