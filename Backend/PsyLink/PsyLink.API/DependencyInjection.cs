@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PsyLink.API.Authorization;
@@ -16,11 +17,16 @@ public static class DependencyInjection
         services.AddOpenApi();
         services.AddProblemDetails();
         services.AddExceptionHandler<ApiExceptionHandler>();
+        services.Configure<ApiBehaviorOptions>(options =>
+            options.SuppressModelStateInvalidFilter = true);
 
         services.AddControllers()
             .AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.Converters.Add(
-                    new JsonStringEnumConverter(allowIntegerValues: false)));
+                    new JsonStringEnumConverter(allowIntegerValues: false));
+                options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+            });
 
         services.AddCors(options =>
         {

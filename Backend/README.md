@@ -36,3 +36,12 @@ Los DTO compartidos por varios casos se mantienen en `Features/<Feature>/Shared`
 
 `Patients` contiene el perfil y registro de pacientes. `Diagnoses` contiene el catálogo, diagnósticos del expediente y diagnósticos asociados al paciente con sus estados.
 Esta decisión evita duplicar reglas clínicas y mantiene el acceso a diagnósticos dentro del feature que posee el catálogo clínico.
+
+## Contratos DTO
+
+- Todos los DTO públicos viven únicamente en `PsyLink.Application`.
+- `PsyLink.API/DTOs` no existe y los controllers reciben y devuelven DTOs de Application directamente.
+- Los nombres de DTO son únicos y siguen `Backend/DTOS.md`.
+- `PageResponseDto<T>` vive únicamente en `PsyLink.Application/Features/Shared/DTOs`.
+- Los contratos de entrada usan records y validación FluentValidation.
+- `SuppressModelStateInvalidFilter` está habilitado: FluentValidation produce el único formato de validación.
