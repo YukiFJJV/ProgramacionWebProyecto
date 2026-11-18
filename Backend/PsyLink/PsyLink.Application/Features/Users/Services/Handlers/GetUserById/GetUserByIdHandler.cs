@@ -24,6 +24,6 @@ public sealed class GetUserByIdHandler(
             cancellationToken)
             ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró el usuario {request.UserId}.");
 
-        return CreateUserHandler.ToResponse(user);
+        return PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(user);
     }
 }

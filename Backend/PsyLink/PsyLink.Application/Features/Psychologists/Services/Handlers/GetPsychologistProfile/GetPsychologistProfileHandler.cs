@@ -48,7 +48,7 @@ public sealed class GetPsychologistProfileHandler(
         return new PsychologistDetailResponseDto
         {
             PsychologistId = psychologist.PsychologistId,
-            User = CreateUserHandler.ToResponse(psychologist.User),
+            User = PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(psychologist.User),
             Specialty = new SpecialtyResponseDto
             {
                 SpecialtyId = psychologist.Specialty.SpecialtyId,

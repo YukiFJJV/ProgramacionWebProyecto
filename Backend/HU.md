@@ -1,13 +1,17 @@
 # Especificación de Requisitos y Flujo Metodológico
+
 ## Historias de Usuario Ordenadas y Estructuradas
-**Plataforma SaaS B2B de Salud Mental | Arquitectura por Capas Funcionales**
+
+Plataforma SaaS B2B de Salud Mental | Arquitectura por Capas Funcionales
 
 ---
 
 ## Fase 1: Onboarding, Registro Base y Autenticación
+
 *Establece la infraestructura del modelo Multi-Tenant y el acceso general al sistema.*
 
 ### HU-21: Registrar Empresa (Tenant)
+
 * **Rol:** `PÚBLICO / PROSPECTO`
 * **Historia:**
   * **Como** representante corporativo,
@@ -19,6 +23,7 @@
   * Asignar automáticamente el estado "Activo" a la empresa registrada.
 
 ### HU-22: Iniciar Sesión en la Plataforma
+
 * **Rol:** `USUARIO REGISTRADO`
 * **Historia:**
   * **Como** usuario registrado (Administrador, Psicólogo o Paciente),
@@ -32,9 +37,11 @@
 ---
 
 ## Fase 2: Configuración Global y Gestión de Empresas
+
 *Administración central de cuentas corporativas y especialidades médicas del sistema.*
 
 ### HU-01: Consultar Empresas Registradas
+
 * **Rol:** `SUPER ADMIN`
 * **Historia:**
   * **Como** administrador global del sistema,
@@ -45,6 +52,7 @@
   * Permitir la búsqueda y filtrado de empresas por su identificador único (UUID), nombre o RTN.
 
 ### HU-02: Actualizar Datos de Empresa
+
 * **Rol:** `SUPER ADMIN`
 * **Historia:**
   * **Como** administrador global de la plataforma,
@@ -55,6 +63,7 @@
   * Validar la obligatoriedad de campos críticos y evitar la duplicidad de nombres entre empresas.
 
 ### HU-07: Administrar Catálogo de Especialidades
+
 * **Rol:** `ADMINISTRADOR / PSICÓLOGO`
 * **Historia:**
   * **Como** administrador de la plataforma,
@@ -68,9 +77,11 @@
 ---
 
 ## Fase 3: Gestión de Usuarios, Personal Clínico y Pacientes
+
 *Administración interna de roles, expedición de licencias de psicólogos y altas de pacientes.*
 
 ### HU-03: Administrar Usuarios y Asignar Roles
+
 * **Rol:** `ADMIN EMPRESA`
 * **Historia:**
   * **Como** administrador de una empresa,
@@ -81,6 +92,7 @@
   * Asignar un rol válido (excluyendo el rol de Super Admin).
 
 ### HU-04: Registrar Paciente en la Empresa
+
 * **Rol:** `ADMIN EMPRESA`
 * **Historia:**
   * **Como** administrador de una empresa,
@@ -92,6 +104,7 @@
   * Asociar automáticamente el paciente al Tenant (empresa) del administrador autenticado.
 
 ### HU-05: Registrar Psicólogo
+
 * **Rol:** `ADMIN EMPRESA`
 * **Historia:**
   * **Como** administrador de una empresa,
@@ -103,6 +116,7 @@
   * Vincular al psicólogo con la empresa solicitante.
 
 ### HU-06: Consultar Psicólogos de la Empresa
+
 * **Rol:** `ADMIN EMPRESA`
 * **Historia:**
   * **Como** administrador de empresa,
@@ -116,9 +130,11 @@
 ---
 
 ## Fase 4: Gestor de Catálogos Clínicos (Diagnósticos y Medicamentos)
+
 *Mantenimiento de la base de conocimientos clínicos, manuales diagnósticos y farmacología.*
 
 ### HU-10: Gestionar Catálogo de Diagnósticos
+
 * **Rol:** `ADMINISTRADOR`
 * **Historia:**
   * **Como** administrador del sistema,
@@ -130,6 +146,7 @@
   * Impedir borrado físico si el diagnóstico está referenciado en expedientes activos.
 
 ### HU-11: Registrar Medicamento en el Catálogo
+
 * **Rol:** `ADMINISTRADOR`
 * **Historia:**
   * **Como** administrador del sistema,
@@ -140,6 +157,7 @@
   * Permitir la asociación con principios activos existentes.
 
 ### HU-12: Consultar Catálogo de Diagnósticos
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo,
@@ -152,9 +170,11 @@
 ---
 
 ## Fase 5: Horarios, Disponibilidad y Programación de Citas
+
 *Módulo de agenda operacional para psicólogos y reserva de citas presenciales o virtuales.*
 
 ### HU-08: Registrar Horarios de Trabajo
+
 * **Rol:** `ADMIN EMPRESA`
 * **Historia:**
   * **Como** administrador de empresa,
@@ -166,6 +186,7 @@
   * Evitar el solapamiento o traslape de bloques de horario para el mismo psicólogo.
 
 ### HU-15: Consultar Perfil y Disponibilidad del Psicólogo
+
 * **Rol:** `PACIENTE`
 * **Historia:**
   * **Como** paciente,
@@ -176,6 +197,7 @@
   * Visualizar los bloques de horarios libres y slots de citas disponibles para reserva.
 
 ### HU-20: Programar Cita Médica
+
 * **Rol:** `PACIENTE / PSICÓLOGO`
 * **Historia:**
   * **Como** paciente (o psicólogo en caso de paciente con nivel de riesgo 3),
@@ -188,6 +210,7 @@
   * Si el paciente posee un score de riesgo alto (`riskScore = 3`), permitir que el psicólogo programe la cita directamente.
 
 ### HU-09: Modificar o Reprogramar Cita
+
 * **Rol:** `PACIENTE / ADMIN`
 * **Historia:**
   * **Como** cliente o administrador de la empresa,
@@ -200,9 +223,11 @@
 ---
 
 ## Fase 6: Atenciones Clínicas, Expediente y Tratamientos
+
 *Módulo central de salud: seguimiento de sesiones, expedientes médicos y prescripción de fármacos.*
 
 ### HU-13: Consultar Citas del Paciente
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo,
@@ -214,6 +239,7 @@
   * Desplegar la información completa de la cita seleccionada.
 
 ### HU-14: Actualizar Notas e Historial de Cita
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo,
@@ -224,6 +250,7 @@
   * Actualizar el estado del historial general del paciente.
 
 ### HU-17: Crear Expediente Clínico Inicial
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo,
@@ -234,6 +261,7 @@
   * Registrar la evaluación del nivel de riesgo dentro de la escala entera de `0` a `3` (`CHECK: risk_score < 4`).
 
 ### HU-18: Consultar Expediente del Paciente
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo autorizador,
@@ -244,6 +272,7 @@
   * Mostrar datos del paciente, historial acumulado de citas y nivel de riesgo actual.
 
 ### HU-19: Actualizar Expediente Clínico y Recetas
+
 * **Rol:** `PSICÓLOGO`
 * **Historia:**
   * **Como** psicólogo a cargo,

@@ -97,7 +97,7 @@ public sealed class RegisterPsychologistHandler(
         return new PsychologistDetailResponseDto
         {
             PsychologistId = psychologist.PsychologistId,
-            User = CreateUserHandler.ToResponse(user),
+            User = PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(user),
             Specialty = new SpecialtyResponseDto
             {
                 SpecialtyId = specialty.SpecialtyId,

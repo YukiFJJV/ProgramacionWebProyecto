@@ -29,7 +29,7 @@ public sealed class GetUsersHandler(
 
         return new UserPageDto
         {
-            Items = users.Select(CreateUserHandler.ToResponse).ToList(),
+            Items = users.Select(PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse).ToList(),
             PageNumber = request.Page,
             PageSize = request.PageSize,
             TotalCount = totalCount
