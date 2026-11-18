@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PsyLink.API.DTOs;
 using PsyLink.Application.Features.PatientRecords.Services.Queries;
-using PsyLink.Application.Features.Patients.Services.Commands;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Commands;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.API.Authorization;
 using AppPatientCreateRequestDto = PsyLink.Application.Features.Patients.DTOs.PatientCreateRequestDto;
 using AppPatientResponseDto = PsyLink.Application.Features.Patients.DTOs.PatientResponseDto;
-using AppPatientDiagnosisResponseDto = PsyLink.Application.Features.Patients.DTOs.PatientDiagnosisResponseDto;
+using AppPatientDiagnosisResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.PatientDiagnosisResponseDto;
 using AppUserCreateRequestDto = PsyLink.Application.Features.Users.DTOs.UserCreateRequestDto;
 using AppUserResponseDto = PsyLink.Application.Features.Users.DTOs.UserResponseDto;
 

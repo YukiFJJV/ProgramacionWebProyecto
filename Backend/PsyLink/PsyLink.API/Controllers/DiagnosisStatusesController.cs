@@ -2,9 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PsyLink.API.DTOs;
-using PsyLink.Application.Features.Patients.Services.Queries;
+using PsyLink.Application.Features.Diagnoses.Services.Queries;
 using PsyLink.API.Authorization;
-using AppDiagnosisStatusResponseDto = PsyLink.Application.Features.Patients.DTOs.DiagnosisStatusResponseDto;
+using AppDiagnosisStatusResponseDto = PsyLink.Application.Features.Diagnoses.DTOs.DiagnosisStatusResponseDto;
 
 namespace PsyLink.API.Controllers;
 
