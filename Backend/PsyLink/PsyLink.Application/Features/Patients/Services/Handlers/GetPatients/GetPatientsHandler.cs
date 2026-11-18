@@ -42,16 +42,14 @@ public sealed class GetPatientsHandler(
             cancellationToken);
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
-        return new PageResponseDto<PatientResponseDto>
-        {
-            Items = patients.Select(ToResponse).ToList(),
-            Page = request.Page,
-            PageSize = request.PageSize,
-            TotalItems = totalCount,
-            TotalPages = totalPages,
-            HasPrevious = request.Page > 1,
-            HasNext = request.Page < totalPages
-        };
+        return new PageResponseDto<PatientResponseDto>(
+            patients.Select(ToResponse).ToList(),
+            request.Page,
+            request.PageSize,
+            totalCount,
+            totalPages,
+            request.Page > 1,
+            request.Page < totalPages);
     }
 
     internal static Guid EnsureCompanyAdmin(ICurrentUserService currentUser)

@@ -25,7 +25,7 @@ public static class UserDtoMapper
                 : new PhoneNumberResponseDto
                 {
                     PhoneId = user.Phone.PhoneId,
-                    Number = user.Phone.Number
+                    PhoneNumber = user.Phone.Number
                 },
             Role = user.Role is null
                 ? new RoleResponseDto()

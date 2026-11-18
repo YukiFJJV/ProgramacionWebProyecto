@@ -49,7 +49,7 @@ internal static class PatientRecordDtoMapper
                         : new PhoneNumberResponseDto
                         {
                             PhoneId = prescription.Medication.Laboratory.Phone.PhoneId,
-                            Number = prescription.Medication.Laboratory.Phone.Number
+                            PhoneNumber = prescription.Medication.Laboratory.Phone.Number
                         }
                 },
             Ingredients = prescription.Medication.Ingredients
@@ -91,7 +91,7 @@ internal static class PatientRecordDtoMapper
                 : new PhoneNumberResponseDto
                 {
                     PhoneId = patient.User.Phone.PhoneId,
-                    Number = patient.User.Phone.Number
+                    PhoneNumber = patient.User.Phone.Number
                 },
             Role = new RoleResponseDto
             {

@@ -58,7 +58,7 @@ internal static class AppointmentDtoMapper
                 : new PhoneNumberResponseDto
                 {
                     PhoneId = patient.User.Phone.PhoneId,
-                    Number = patient.User.Phone.Number
+                    PhoneNumber = patient.User.Phone.Number
                 },
             Role = new RoleResponseDto
             {

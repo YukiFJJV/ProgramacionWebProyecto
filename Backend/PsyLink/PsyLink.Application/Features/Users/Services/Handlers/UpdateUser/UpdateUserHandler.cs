@@ -94,7 +94,7 @@ public sealed class UpdateUserHandler(
                 : new PhoneNumberResponseDto
                 {
                     PhoneId = user.Phone.PhoneId,
-                    Number = user.Phone.Number
+                    PhoneNumber = user.Phone.Number
                 },
             Role = new RoleResponseDto
             {

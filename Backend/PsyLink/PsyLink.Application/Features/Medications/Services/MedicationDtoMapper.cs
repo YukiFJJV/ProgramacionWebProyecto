@@ -24,7 +24,7 @@ internal static class MedicationDtoMapper
                         : new PhoneNumberResponseDto
                         {
                             PhoneId = medication.Laboratory.Phone.PhoneId,
-                            Number = medication.Laboratory.Phone.Number
+                            PhoneNumber = medication.Laboratory.Phone.Number
                         }
                 },
             Ingredients = medication.Ingredients

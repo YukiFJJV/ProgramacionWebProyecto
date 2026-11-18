@@ -27,7 +27,7 @@ public sealed class GetLaboratoriesHandler(
                 : new PhoneNumberResponseDto
                 {
                     PhoneId = laboratory.Phone.PhoneId,
-                    Number = laboratory.Phone.Number
+                    PhoneNumber = laboratory.Phone.Number
                 }
         }).ToList();
     }

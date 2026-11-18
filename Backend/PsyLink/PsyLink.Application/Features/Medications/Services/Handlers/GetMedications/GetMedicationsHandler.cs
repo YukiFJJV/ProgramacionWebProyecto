@@ -33,15 +33,13 @@ public sealed class GetMedicationsHandler(
             cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize);
 
-        return new PageResponseDto<MedicationResponseDto>
-        {
-            Items = medications.Select(MedicationDtoMapper.ToResponse).ToList(),
-            Page = filter.Page,
-            PageSize = filter.PageSize,
-            TotalItems = totalCount,
-            TotalPages = totalPages,
-            HasPrevious = filter.Page > 1,
-            HasNext = filter.Page < totalPages
-        };
+        return new PageResponseDto<MedicationResponseDto>(
+            medications.Select(MedicationDtoMapper.ToResponse).ToList(),
+            filter.Page,
+            filter.PageSize,
+            totalCount,
+            totalPages,
+            filter.Page > 1,
+            filter.Page < totalPages);
     }
 }

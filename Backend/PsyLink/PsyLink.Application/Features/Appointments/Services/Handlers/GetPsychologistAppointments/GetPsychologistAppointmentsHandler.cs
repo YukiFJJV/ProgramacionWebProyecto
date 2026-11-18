@@ -63,15 +63,13 @@ public sealed class GetPsychologistAppointmentsHandler(
             cancellationToken);
 
         var totalPages = (int)Math.Ceiling(result.TotalCount / (double)filter.PageSize);
-        return new PageResponseDto<AppointmentResponseDto>
-        {
-            Items = result.Items.Select(AppointmentDtoMapper.ToResponse).ToList(),
-            Page = filter.Page,
-            PageSize = filter.PageSize,
-            TotalItems = result.TotalCount,
-            TotalPages = totalPages,
-            HasPrevious = filter.Page > 1,
-            HasNext = filter.Page < totalPages
-        };
+        return new PageResponseDto<AppointmentResponseDto>(
+            result.Items.Select(AppointmentDtoMapper.ToResponse).ToList(),
+            filter.Page,
+            filter.PageSize,
+            result.TotalCount,
+            totalPages,
+            filter.Page > 1,
+            filter.Page < totalPages);
     }
 }

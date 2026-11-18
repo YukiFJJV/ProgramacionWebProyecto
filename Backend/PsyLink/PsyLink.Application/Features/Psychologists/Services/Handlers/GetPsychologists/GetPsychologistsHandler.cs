@@ -39,9 +39,7 @@ public sealed class GetPsychologistsHandler(
             cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
-        return new PageResponseDto<PsychologistSummaryResponseDto>
-        {
-            Items = psychologists.Select(psychologist => new PsychologistSummaryResponseDto
+        var items = psychologists.Select(psychologist => new PsychologistSummaryResponseDto
             {
                 PsychologistId = psychologist.PsychologistId,
                 FirstName = psychologist.User.FirstName,
@@ -52,13 +50,14 @@ public sealed class GetPsychologistsHandler(
                     SpecialtyName = psychologist.Specialty.SpecialtyName
                 },
                 LicenseNumber = psychologist.LicenseNumber
-            }).ToList(),
-            Page = request.Page,
-            PageSize = request.PageSize,
-            TotalItems = totalCount,
-            TotalPages = totalPages,
-            HasPrevious = request.Page > 1,
-            HasNext = request.Page < totalPages
-        };
+            }).ToList();
+        return new PageResponseDto<PsychologistSummaryResponseDto>(
+            items,
+            request.Page,
+            request.PageSize,
+            totalCount,
+            totalPages,
+            request.Page > 1,
+            request.Page < totalPages);
     }
 }

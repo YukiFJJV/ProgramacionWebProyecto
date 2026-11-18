@@ -26,20 +26,19 @@ public sealed class GetDiagnosesHandler(
             cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.Filter.PageSize);
 
-        return new PageResponseDto<DiagnosisResponseDto>
-        {
-            Items = diagnoses.Select(diagnosis => new DiagnosisResponseDto
+        var items = diagnoses.Select(diagnosis => new DiagnosisResponseDto
             {
                 DiagnosisId = diagnosis.DiagnosisId,
                 Name = diagnosis.Name
-            }).ToList(),
-            Page = request.Filter.Page,
-            PageSize = request.Filter.PageSize,
-            TotalItems = totalCount,
-            TotalPages = totalPages,
-            HasPrevious = request.Filter.Page > 1,
-            HasNext = request.Filter.Page < totalPages
-        };
+            }).ToList();
+        return new PageResponseDto<DiagnosisResponseDto>(
+            items,
+            request.Filter.Page,
+            request.Filter.PageSize,
+            totalCount,
+            totalPages,
+            request.Filter.Page > 1,
+            request.Filter.Page < totalPages);
     }
 
     internal static void EnsureCatalogReader(ICurrentUserService currentUser)
