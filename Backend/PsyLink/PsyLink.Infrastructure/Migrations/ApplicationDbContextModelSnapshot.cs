@@ -876,6 +876,32 @@ namespace PsyLink.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PsyLink.Infrastructure.Persistence.Entities.Clinical.AppointmentSessionNotes", b =>
+                {
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("appointment_id");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("AppointmentId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("appointment_session_notes", (string)null);
+                });
+
             modelBuilder.Entity("PsyLink.Domain.Billing.BillDetail", b =>
                 {
                     b.HasOne("PsyLink.Domain.Billing.PaymentHistory", "Payment")
@@ -1237,6 +1263,15 @@ namespace PsyLink.Infrastructure.Migrations
                     b.Navigation("Medication");
 
                     b.Navigation("Record");
+                });
+
+            modelBuilder.Entity("PsyLink.Infrastructure.Persistence.Entities.Clinical.AppointmentSessionNotes", b =>
+                {
+                    b.HasOne("PsyLink.Domain.Clinical.Appointment", null)
+                        .WithOne()
+                        .HasForeignKey("PsyLink.Infrastructure.Persistence.Entities.Clinical.AppointmentSessionNotes", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PsyLink.Domain.Billing.PaymentHistory", b =>

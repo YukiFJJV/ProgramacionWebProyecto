@@ -8,6 +8,7 @@ using PsyLink.Domain.Billing;
 using PsyLink.Application.Common.Interfaces;
 using PsyLink.Application.Interfaces;
 using PsyLink.Domain.Common;
+using PsyLink.Infrastructure.Persistence.Entities.Clinical;
 
 namespace PsyLink.Infrastructure.Persistence;
 
@@ -36,6 +37,8 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Psychologist> Psychologists => Set<Psychologist>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<AppointmentSessionNotes> AppointmentSessionNotes =>
+        Set<AppointmentSessionNotes>();
     public DbSet<PatientRecord> PatientRecords => Set<PatientRecord>();
     public DbSet<DiagnosisCatalog> DiagnosisCatalog => Set<DiagnosisCatalog>();
     public DbSet<PatientDiagnosis> PatientDiagnoses => Set<PatientDiagnosis>();
@@ -77,6 +80,8 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
         modelBuilder.Entity<Psychologist>()
             .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
         modelBuilder.Entity<Appointment>()
+            .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
+        modelBuilder.Entity<AppointmentSessionNotes>()
             .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);
         modelBuilder.Entity<PatientRecord>()
             .HasQueryFilter(entity => _tenantId == null || entity.TenantId == _tenantId);

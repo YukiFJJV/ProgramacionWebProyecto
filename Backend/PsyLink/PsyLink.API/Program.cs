@@ -1,6 +1,7 @@
 using PsyLink.API;
 using PsyLink.Application;
 using PsyLink.Infrastructure;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,10 @@ app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); 
 }
+
+
 
 app.MapControllers();
 

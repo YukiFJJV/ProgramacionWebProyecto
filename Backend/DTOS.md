@@ -638,3 +638,4 @@ Los DTOs se describen una sola vez aquí y se reutilizan en los endpoints. La co
 | **Notas clínicas** | El modelo solo contiene `notes` en `record_diagnosis`. ¿Se requiere evolución/notas de sesión generales? De ser así, agregar entidad/tabla específica. |
 | **Notas de `patient_diagnosis`** | `PatientDiagnosisUpsertRequestDto` no debería persistir `notes` mientras la tabla no tenga esa columna. |
 | **Borrado de diagnósticos** | Definir si `DELETE` realiza borrado físico, soft delete o se bloquea cuando existen relaciones. |
+

@@ -20,7 +20,7 @@
 @medicationId = 00000000-0000-0000-0000-000000000014
 
 ### Login (HU-22)
-POST {{PsyLink.API_HostAddress}}/auth/login
+POST http://localhost:5220/auth/login
 Content-Type: application/json
 
 {

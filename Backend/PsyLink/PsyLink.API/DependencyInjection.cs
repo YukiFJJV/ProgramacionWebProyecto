@@ -42,6 +42,22 @@ public static class DependencyInjection
         var audience = jwt["Audience"];
         var expirationMinutes = jwt.GetValue<int?>("ExpirationMinutes") ?? 60;
 
+        Console.WriteLine("----- JWT DEBUG -----");
+
+        Console.WriteLine($"SecretKey existe: {!string.IsNullOrWhiteSpace(secretKey)}");
+
+        Console.WriteLine($"SecretKey bytes: {
+            Encoding.UTF8.GetByteCount(secretKey ?? "")
+        }");
+
+        Console.WriteLine($"Issuer: {issuer ?? "NULL"}");
+
+        Console.WriteLine($"Audience: {audience ?? "NULL"}");
+
+        Console.WriteLine($"ExpirationMinutes: {expirationMinutes}");
+
+        Console.WriteLine("---------------------");  
+
         if (string.IsNullOrWhiteSpace(secretKey) ||
             Encoding.UTF8.GetByteCount(secretKey) < 32 ||
             string.IsNullOrWhiteSpace(issuer) ||
