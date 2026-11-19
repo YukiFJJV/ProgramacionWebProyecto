@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PsyLink.Application.Features.Tenants.DTOs;
 using PsyLink.Application.Features.Shared.DTOs;
-using PsyLink.Application.Features.Users.DTOs;
 using PsyLink.Application.Features.Tenants.Services.Commands;
 using PsyLink.Application.Features.Tenants.Services.Queries;
 using PsyLink.API.Authorization;
@@ -12,6 +11,7 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Route("tenants")]
+[AllowAnonymous]
 public sealed class TenantsController(ISender mediator) : ControllerBase
 {
     [AllowAnonymous]

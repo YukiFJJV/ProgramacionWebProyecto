@@ -8,6 +8,7 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Route("auth")]
+[AllowAnonymous]
 public sealed class AuthController(
     ISender mediator) : ControllerBase
 {

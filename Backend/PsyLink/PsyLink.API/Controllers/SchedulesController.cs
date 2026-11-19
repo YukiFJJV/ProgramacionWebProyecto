@@ -10,6 +10,7 @@ namespace PsyLink.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("schedules")]
+[AllowAnonymous]
 public sealed class SchedulesController(ISender mediator) : ControllerBase
 {
     [HttpPut("{scheduleId:guid}")]

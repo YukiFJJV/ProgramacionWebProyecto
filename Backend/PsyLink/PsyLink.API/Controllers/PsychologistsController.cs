@@ -16,6 +16,7 @@ namespace PsyLink.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("psychologists")]
+[AllowAnonymous]
 public sealed class PsychologistsController(ISender mediator) : ControllerBase
 {
     [HttpPost]

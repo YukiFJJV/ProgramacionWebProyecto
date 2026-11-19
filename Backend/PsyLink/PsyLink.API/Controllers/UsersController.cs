@@ -12,6 +12,7 @@ namespace PsyLink.API.Controllers;
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
 [Route("users")]
+[AllowAnonymous]
 public sealed class UsersController(ISender mediator) : ControllerBase
 {
     [HttpPost]
@@ -53,7 +54,6 @@ public sealed class UsersController(ISender mediator) : ControllerBase
                 query.SortBy,
                 query.SortDirection),
             cancellationToken);
-
         return Ok(result);
     }
 

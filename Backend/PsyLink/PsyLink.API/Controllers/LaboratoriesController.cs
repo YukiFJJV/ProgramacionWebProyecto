@@ -10,6 +10,7 @@ namespace PsyLink.API.Controllers;
 [ApiController]
 [Authorize(Roles = Roles.Admin)]
 [Route("laboratories")]
+[AllowAnonymous]
 public sealed class LaboratoriesController(ISender mediator) : ControllerBase
 {
     [HttpGet]

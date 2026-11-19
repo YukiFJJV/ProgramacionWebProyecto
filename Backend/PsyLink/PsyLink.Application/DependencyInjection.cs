@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using PsyLink.Application.Features.Behaviors;
-using MediatR;
 
 namespace PsyLink.Application;
 
