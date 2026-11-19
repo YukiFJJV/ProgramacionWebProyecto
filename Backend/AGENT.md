@@ -1,26 +1,40 @@
-# Tarea: Permitir creación pública de usuarios sin requerir administrador
+# Tarea: Habilitar auto-registro público de usuarios en `POST /users` sin requerir administrador
 
-Modifica el flujo de creación de usuarios (`POST /users` en `UsersController` y su handler / servicio / validadores / behaviors en `PsyLink.Application` y `PsyLink.Infrastructure`) para que un usuario pueda registrarse **sin necesidad de estar autenticado ni tener rol de administrador**.
+## Contexto y diagnóstico
 
-## Contexto del problema actual
+En `CreateUserHandler` (`PsyLink.Application.Features.Users.Services.Handlers.CreateUser`), el método `EnsureCompanyAdmin()` bloquea la petición con `ForbiddenException("La operación requiere un administrador de empresa autenticado.")` cuando no hay un administrador de empresa autenticado, y además `Handle` obtiene `tenantId` exclusivamente desde `currentUser.TenantId`.
 
-- `POST /users` ya tiene `[AllowAnonymous]`, pero al enviarlo sin token de administrador devuelve `403 Forbidden` con el mensaje `"La operación requiere un administrador de empresa autenticado"` (o una regla equivalente en la capa de aplicación/dominio).
-- El sistema debe permitir crear el usuario de forma pública sin depender de un usuario administrador autenticado en el contexto actual.
+El objetivo es permitir que cualquier usuario pueda crear su cuenta de forma pública (`POST /users` con `[AllowAnonymous]`) sin depender de un usuario autenticado ni de un rol de administrador, conservando la seguridad y la integridad de datos en PostgreSQL (`PsyLinkDB`).
 
 ## Cambios requeridos
 
-1. **Localizar y eliminar/adaptar la validación de administrador en creación de usuario:**
-   - Busca dónde se lanza el error `"La operación requiere un administrador de empresa autenticado"` (o cualquier verificación de rol `ADMIN` / `SUPER_ADMIN` / usuario autenticado) dentro del flujo de `CreateUserCommand` (handler, validator, authorization/pipeline behavior o domain service).
-   - Permite que el comando se ejecute cuando no haya un usuario autenticado.
-2. **Resolver `TenantId` y `RoleId` en registro público:**
-   - Si no hay un administrador autenticado en el contexto actual, asigna un `TenantId` por defecto válido (definido por configuración o constante/valor por defecto del sistema) en lugar de fallar por falta de admin.
-   - Si no hay un administrador autenticado, asigna un rol seguro por defecto (por ejemplo `USER` o `PSYCHOLOGIST`, evitando elevar privilegios a `ADMIN` o `SUPER_ADMIN` desde una petición anónima).
-3. **Mantener integridad de datos y seguridad:**
-   - Conserva las validaciones de formato/unicidad (por ejemplo, correo duplicado -> `409 Conflict` o datos inválidos -> `400 Bad Request`).
-   - Asegúrate de que la contraseña se guarde hasheada (`password_hash`) usando el mismo hasheador que consume el login (`/auth/login`).
-   - No rompas los demás endpoints de `UsersController` (`GET /users`, `GET /users/{userId:guid}`, `PUT /users/{userId:guid}`), que deben seguir protegidos con `[Authorize]`.
+### 1. `CreateUserHandler.cs`
 
-## Verificación esperada
+- **Eliminar o condicionar `EnsureCompanyAdmin()`:**
+  - No lanzar `ForbiddenException` cuando el request sea anónimo / no haya un administrador autenticado.
+  - Si `currentUser` SÍ corresponde a un administrador de empresa autenticado (`currentUser.RoleName == RoleNames.Admin && currentUser.TenantId is not null`), mantener el comportamiento actual de crear el usuario dentro de su `TenantId` con el rol solicitado (excluyendo `SUPER_ADMIN`).
+- **Resolver `TenantId` cuando no haya administrador autenticado:**
+  - Obtener un `TenantId` por defecto desde configuración (por ejemplo `IConfiguration` o una opción tipada como `DefaultTenantId` en `appsettings.json` / variables de entorno) o resolver un tenant activo por defecto si no se configura uno explícito, y validar que el `tenant` exista y esté `Active`.
+  - No lanzar `ConflictException("El usuario autenticado no tiene una empresa asignada.")` cuando la creación sea pública/anónima.
+- **Resolver `RoleId` de forma segura cuando no haya administrador autenticado:**
+  - Si no hay un administrador autenticado, **ignorar** cualquier `RoleId` privilegiado enviado en el request (como `ADMIN` o `SUPER_ADMIN`) y asignar un rol seguro por defecto (por ejemplo `USER` o `PSYCHOLOGIST`, consultándolo desde `userRepository`).
+  - Validar que el rol exista y esté activo antes de crear el `User`.
+- **Mantener validaciones y hashing:**
+  - Conservar la validación de correo duplicado (`userRepository.ExistsByEmailAsync` -> `BusinessRuleException`).
+  - Mantener `PasswordHash = passwordHasher.Hash(request.User.Password)` para que el usuario creado pueda iniciar sesión luego en `POST /auth/login`.
 
-- Enviar `POST /users` sin token de autorización crea el usuario y devuelve `201 Created` (en vez de `403 Forbidden`).
-- Hacer `POST /auth/login` con el correo y contraseña del usuario recién creado devuelve `200 OK` y su token/sesión.
+### 2. `UsersController.cs`
+
+- Confirmar que `POST /users` tenga `[AllowAnonymous]`.
+- Mantener protegidos con `[Authorize]` los endpoints de consulta y actualización (`GET /users`, `GET /users/{userId:guid}`, `PUT /users/{userId:guid}`).
+
+### 3. Configuración (`appsettings.json` / `appsettings.Development.json`)
+
+- Agregar una sección o clave clara para el tenant por defecto del registro público (por ejemplo `Registration:DefaultTenantId`), documentando en un comentario o en el README/respuesta qué GUID configurar según la base de datos.
+
+## Criterios de aceptación
+
+1. Enviar `POST /users` sin token de autorización ni rol `ADMIN` crea el usuario en PostgreSQL y responde `201 Created` (nunca `403 Forbidden` por falta de admin).
+2. Un usuario anónimo no puede auto-asignarse `ADMIN` ni `SUPER_ADMIN` vía `roleId`.
+3. El `password_hash` guardado en la base de datos es un hash generado por `passwordHasher.Hash(...)`, permitiendo hacer `POST /auth/login` y recibir `200 OK`.
+4. Los endpoints `GET /users`, `GET /users/{userId:guid}` y `PUT /users/{userId:guid}` siguen requiriendo autenticación/autorización.

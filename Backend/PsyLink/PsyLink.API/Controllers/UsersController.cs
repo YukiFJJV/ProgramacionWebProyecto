@@ -15,6 +15,7 @@ namespace PsyLink.API.Controllers;
 public sealed class UsersController(ISender mediator) : ControllerBase
 {
     [HttpPost]
+    [AllowAnonymous]
     [EndpointSummary("Create a user")]
     [EndpointDescription("Creates a user in the authenticated administrator's tenant with an assignable role.")]
     [ProducesResponseType<UserResponseDto>(StatusCodes.Status201Created)]
