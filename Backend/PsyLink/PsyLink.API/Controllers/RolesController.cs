@@ -8,7 +8,8 @@ using PsyLink.API.Authorization;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = Roles.Admin)]
+// [Authorize(Roles = Roles.Admin)]
+[Authorize]
 [Route("roles")]
 [AllowAnonymous]
 public sealed class RolesController(ISender mediator) : ControllerBase

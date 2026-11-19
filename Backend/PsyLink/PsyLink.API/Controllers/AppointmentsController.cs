@@ -31,7 +31,7 @@ public sealed class AppointmentsController(ISender mediator) : ControllerBase
         var result = await mediator.Send(
             new CreateAppointmentCommand(request),
             cancellationToken);
-        return CreatedAtAction(
+        return result == null ? BadRequest() : CreatedAtAction(
             nameof(GetById),
             new { appointmentId = result.AppointmentId },
             result);

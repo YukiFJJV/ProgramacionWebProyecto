@@ -8,7 +8,8 @@ using PsyLink.Application.Features.Prescriptions.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = Roles.Admin)]
+// [Authorize(Roles = Roles.Admin)]
+// [Authorize]
 [Route("active-ingredients")]
 [AllowAnonymous]
 public sealed class ActiveIngredientsController(ISender mediator) : ControllerBase

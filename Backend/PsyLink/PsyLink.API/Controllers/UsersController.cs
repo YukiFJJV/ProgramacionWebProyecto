@@ -10,13 +10,15 @@ using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = Roles.Admin)]
+// [Authorize(Roles = Roles.Admin)]
+[Authorize]
 [Route("users")]
 [AllowAnonymous]
 public sealed class UsersController(ISender mediator) : ControllerBase
 {
     [HttpPost]
-    [EndpointSummary("Create a tenant user")]
+    [AllowAnonymous]
+    [EndpointSummary("Create a user")]
     [EndpointDescription("Creates a user in the authenticated administrator's tenant with an assignable role.")]
     [ProducesResponseType<UserResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -28,7 +30,7 @@ public sealed class UsersController(ISender mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new CreateUserCommand(request), cancellationToken);
-        return CreatedAtAction(
+        return result == null ? BadRequest() : CreatedAtAction(
             nameof(GetById),
             new { userId = result.UserId },
             result);

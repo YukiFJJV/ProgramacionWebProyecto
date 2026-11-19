@@ -8,7 +8,8 @@ using PsyLink.Application.Features.Diagnoses.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = Roles.Psychologist)]
+// [Authorize(Roles = Roles.Psychologist)]
+[Authorize]
 [Route("diagnosis-statuses")]
 [AllowAnonymous]
 public sealed class DiagnosisStatusesController(ISender mediator) : ControllerBase

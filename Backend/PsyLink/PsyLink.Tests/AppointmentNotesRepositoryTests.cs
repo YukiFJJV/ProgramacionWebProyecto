@@ -7,6 +7,7 @@ using PsyLink.Infrastructure;
 using PsyLink.Infrastructure.Persistence;
 using PsyLink.Infrastructure.Repositories.Clinical;
 using Xunit;
+using DotNetEnv;
 
 namespace PsyLink.Tests;
 
@@ -19,7 +20,7 @@ public sealed class AppointmentNotesRepositoryTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] =
-                    "Host=localhost;Port=5432;Database=psylink;Username=postgres;Password=postgres"
+                    Env.GetString("ConnectionStrings__DefaultConnection")
             })
             .Build();
         var services = new ServiceCollection();
