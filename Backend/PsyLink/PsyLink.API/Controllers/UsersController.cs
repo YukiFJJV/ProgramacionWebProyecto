@@ -10,14 +10,11 @@ using PsyLink.Application.Features.Shared.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-// [Authorize(Roles = Roles.Admin)]
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 [Route("users")]
-[AllowAnonymous]
 public sealed class UsersController(ISender mediator) : ControllerBase
 {
     [HttpPost]
-    [AllowAnonymous]
     [EndpointSummary("Create a user")]
     [EndpointDescription("Creates a user in the authenticated administrator's tenant with an assignable role.")]
     [ProducesResponseType<UserResponseDto>(StatusCodes.Status201Created)]

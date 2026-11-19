@@ -21,6 +21,7 @@ public sealed class AppointmentNotesRepositoryTests
             {
                 ["ConnectionStrings:DefaultConnection"] =
                     Env.GetString("ConnectionStrings__DefaultConnection")
+                    ?? "Host=localhost;Database=PsyLinkTests"
             })
             .Build();
         var services = new ServiceCollection();

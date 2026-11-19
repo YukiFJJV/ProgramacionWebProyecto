@@ -8,10 +8,8 @@ using PsyLink.Application.Features.Prescriptions.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-// [Authorize(Roles = Roles.Admin)]
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 [Route("laboratories")]
-[AllowAnonymous]
 public sealed class LaboratoriesController(ISender mediator) : ControllerBase
 {
     [HttpGet]

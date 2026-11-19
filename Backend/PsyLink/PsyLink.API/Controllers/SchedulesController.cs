@@ -8,9 +8,8 @@ using PsyLink.Application.Features.Schedules.DTOs;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 [Route("schedules")]
-[AllowAnonymous]
 public sealed class SchedulesController(ISender mediator) : ControllerBase
 {
     [HttpPut("{scheduleId:guid}")]

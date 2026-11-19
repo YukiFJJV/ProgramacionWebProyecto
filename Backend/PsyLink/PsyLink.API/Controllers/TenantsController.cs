@@ -11,7 +11,6 @@ namespace PsyLink.API.Controllers;
 
 [ApiController]
 [Route("tenants")]
-[AllowAnonymous]
 public sealed class TenantsController(ISender mediator) : ControllerBase
 {
     [AllowAnonymous]

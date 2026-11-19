@@ -13,10 +13,8 @@ using PsyLink.API.Authorization;
 namespace PsyLink.API.Controllers;
 
 [ApiController]
-// [Authorize(Roles = Roles.Psychologist)]
-[Authorize]
+[Authorize(Roles = Roles.Psychologist)]
 [Route("records")]
-[AllowAnonymous]
 public sealed class RecordsController(ISender mediator) : ControllerBase
 {
     [HttpPost]
