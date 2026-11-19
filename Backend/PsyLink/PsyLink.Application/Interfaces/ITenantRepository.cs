@@ -12,6 +12,8 @@ public interface ITenantRepository
 
     Task<Tenant?> GetByIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
+    Task<Tenant?> GetFirstActiveAsync(CancellationToken cancellationToken = default);
+
     Task<(IReadOnlyList<Tenant> Tenants, int TotalCount)> SearchAsync(
         Guid? tenantId,
         string? name,

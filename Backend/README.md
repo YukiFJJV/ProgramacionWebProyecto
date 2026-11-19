@@ -1,6 +1,13 @@
 <!-- CITAS DE PACIENTES -->
 # Algoritmo de las citas
 
+## Registro público de usuarios
+
+`POST /users` permite registro público. La cuenta se crea con el rol `PATIENT`.
+Configure `Registration:DefaultTenantId` en `appsettings.json`, `appsettings.Development.json`
+o mediante la variable de entorno `Registration__DefaultTenantId` con el GUID de un tenant activo.
+Si no se configura, el handler selecciona el primer tenant activo disponible.
+
 Debemos desarrollar un algoritmo el cual; en base al tiempo disponible de los psicologos, y la importancia de la cita; calcule de manera óptima a qué paciente y en qué horario se le debe atender.
 
 Regla de negocio: Hay 4 niveles de importancia (risk_score)-> 0, 1, 2, 3

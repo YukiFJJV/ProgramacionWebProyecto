@@ -68,6 +68,18 @@ public sealed class TenantRepository : ITenantRepository
                 cancellationToken);
     }
 
+    public Task<Tenant?> GetFirstActiveAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Tenants
+            .AsNoTracking()
+            .Include(t => t.Phone)
+            .Where(tenant => tenant.Active)
+            .OrderBy(tenant => tenant.Name)
+            .ThenBy(tenant => tenant.TenantId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Tenant> Tenants, int TotalCount)> SearchAsync(
         Guid? tenantId,
         string? name,

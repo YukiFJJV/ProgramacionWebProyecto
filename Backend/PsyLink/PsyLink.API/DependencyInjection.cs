@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using PsyLink.Application.Interfaces;
 using PsyLink.API.Authorization;
 using PsyLink.API.Middlewares;
 
@@ -14,6 +15,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddSingleton<IPublicRegistrationSettings>(
+            new PublicRegistrationSettings(configuration.GetValue<Guid?>("Registration:DefaultTenantId")));
         services.AddOpenApi();
         services.AddProblemDetails();
         services.AddExceptionHandler<ApiExceptionHandler>();

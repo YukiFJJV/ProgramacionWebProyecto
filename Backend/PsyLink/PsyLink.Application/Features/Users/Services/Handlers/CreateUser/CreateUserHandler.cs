@@ -11,33 +11,64 @@ public sealed class CreateUserHandler(
     IUserRepository userRepository,
     ITenantRepository tenantRepository,
     IPasswordHasher passwordHasher,
-    ICurrentUserService currentUser)
+    ICurrentUserService currentUser,
+    IPublicRegistrationSettings publicRegistrationSettings)
     : IRequestHandler<CreateUserCommand, UserResponseDto>
 {
     public async Task<UserResponseDto> Handle(
         CreateUserCommand request,
         CancellationToken cancellationToken)
     {
-        EnsureCompanyAdmin();
-
         if (await userRepository.ExistsByEmailAsync(request.User.Email, cancellationToken))
         {
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Ya existe una cuenta con ese correo electrónico.");
         }
 
-        var tenantId = currentUser.TenantId
-            ?? throw new PsyLink.Application.Common.Exceptions.ConflictException("El usuario autenticado no tiene una empresa asignada.");
-        var tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
-            ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
+        var isCompanyAdmin = currentUser.IsAuthenticated
+            && currentUser.RoleName == RoleNames.Admin
+            && currentUser.TenantId is not null;
+
+        Tenant tenant;
+        Role role;
+
+        if (isCompanyAdmin)
+        {
+            var tenantId = currentUser.TenantId!.Value;
+            tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
+                ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
+
+            role = await userRepository.GetRoleByIdAsync(request.User.RoleId, cancellationToken)
+                ?? throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+
+            if (role.Name == RoleNames.SuperAdmin)
+            {
+                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+            }
+        }
+        else
+        {
+            var configuredTenantId = publicRegistrationSettings.DefaultTenantId;
+            if (configuredTenantId is not null)
+            {
+                tenant = await tenantRepository.GetByIdAsync(configuredTenantId.Value, cancellationToken)
+                    ?? throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                        "La empresa configurada para el registro público no existe.");
+            }
+            else
+            {
+                tenant = await tenantRepository.GetFirstActiveAsync(cancellationToken)
+                    ?? throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                        "No hay una empresa activa disponible para el registro público.");
+            }
+
+            role = await userRepository.GetRoleByNameAsync(RoleNames.Patient, cancellationToken)
+                ?? throw new PsyLink.Application.Common.Exceptions.ConflictException(
+                    "No está disponible el rol PATIENT para el registro público.");
+        }
+
         if (!tenant.Active)
         {
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden registrar usuarios en una empresa inactiva.");
-        }
-
-        var role = await userRepository.GetRoleByIdAsync(request.User.RoleId, cancellationToken);
-        if (role is null || role.Name == RoleNames.SuperAdmin)
-        {
-            throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
         }
 
         var phone = request.User.PhoneNumber is null
@@ -64,14 +95,6 @@ public sealed class CreateUserHandler(
 
         await userRepository.AddAsync(user, cancellationToken);
         return PsyLink.Application.Features.Users.Shared.UserDtoMapper.ToResponse(user);
-    }
-
-    private void EnsureCompanyAdmin()
-    {
-        if (currentUser.RoleName != RoleNames.Admin || currentUser.TenantId is null)
-        {
-            throw new PsyLink.Application.Common.Exceptions.ForbiddenException("La operación requiere un administrador de empresa autenticado.");
-        }
     }
 
 }

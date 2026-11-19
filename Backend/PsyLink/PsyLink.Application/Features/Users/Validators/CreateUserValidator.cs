@@ -28,14 +28,5 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
             .NotEmpty()
             .Matches(PasswordPolicy)
             .WithMessage("La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula y número.");
-        RuleFor(command => command.User.RoleId)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .MustAsync(async (roleId, cancellationToken) =>
-            {
-                var role = await userRepository.GetRoleByIdAsync(roleId, cancellationToken);
-                return role is not null && role.Name != RoleNames.SuperAdmin;
-            })
-            .WithMessage("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
     }
 }
