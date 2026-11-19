@@ -27,6 +27,15 @@ public static class UserDtoMapper
                     PhoneId = user.Phone.PhoneId,
                     PhoneNumber = user.Phone.Number
                 },
+            Phones = (user.Phones.Count > 0 ? user.Phones : user.Phone is null
+                    ? []
+                    : [user.Phone])
+                .Select(phone => new PhoneNumberResponseDto
+                {
+                    PhoneId = phone.PhoneId,
+                    PhoneNumber = phone.Number
+                })
+                .ToList(),
             Role = user.Role is null
                 ? new RoleResponseDto()
                 : new RoleResponseDto

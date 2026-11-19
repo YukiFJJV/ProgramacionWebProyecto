@@ -511,13 +511,18 @@ namespace PsyLink.Infrastructure.Migrations
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(8)
-                        .HasColumnType("character varying(8)")
+                        .HasColumnType("character(8)")
                         .HasColumnName("number");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("PhoneId");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
+                    b.HasIndex("Number");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("phone_numbers", (string)null);
                 });
@@ -1116,6 +1121,16 @@ namespace PsyLink.Infrastructure.Migrations
                     b.Navigation("Psychologist");
                 });
 
+            modelBuilder.Entity("PsyLink.Domain.Identity.PhoneNumber", b =>
+                {
+                    b.HasOne("PsyLink.Domain.Identity.User", "User")
+                        .WithMany("Phones")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PsyLink.Domain.Identity.Subplan", b =>
                 {
                     b.HasOne("PsyLink.Domain.Identity.Plan", "Plan")
@@ -1303,6 +1318,11 @@ namespace PsyLink.Infrastructure.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("Schedules");
+                });
+
+            modelBuilder.Entity("PsyLink.Domain.Identity.User", b =>
+                {
+                    b.Navigation("Phones");
                 });
 
             modelBuilder.Entity("PsyLink.Domain.Pharmacy.Medication", b =>

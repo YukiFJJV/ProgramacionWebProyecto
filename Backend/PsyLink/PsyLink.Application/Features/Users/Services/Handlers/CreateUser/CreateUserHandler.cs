@@ -12,7 +12,8 @@ public sealed class CreateUserHandler(
     ITenantRepository tenantRepository,
     IPasswordHasher passwordHasher,
     ICurrentUserService currentUser,
-    IPublicRegistrationSettings publicRegistrationSettings)
+    IPublicRegistrationSettings publicRegistrationSettings,
+    IRoleSettings roleSettings)
     : IRequestHandler<CreateUserCommand, UserResponseDto>
 {
     public async Task<UserResponseDto> Handle(
@@ -37,12 +38,20 @@ public sealed class CreateUserHandler(
             tenant = await tenantRepository.GetByIdAsync(tenantId, cancellationToken)
                 ?? throw new PsyLink.Application.Common.Exceptions.NotFoundException($"No se encontró la empresa {tenantId}.");
 
-            role = await userRepository.GetRoleByIdAsync(request.User.RoleId, cancellationToken)
-                ?? throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
-
-            if (role.Name == RoleNames.SuperAdmin)
+            if (request.User.RoleId is null)
             {
-                throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+                role = await userRepository.GetRoleByIdAsync(roleSettings.PatientRoleId, cancellationToken)
+                    ?? throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("El rol PATIENT configurado no existe.");
+            }
+            else
+            {
+                role = await userRepository.GetRoleByIdAsync(request.User.RoleId.Value, cancellationToken)
+                    ?? throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+
+                if (role.Name == RoleNames.SuperAdmin)
+                {
+                    throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("Debe asignarse un rol válido distinto de SUPER_ADMIN.");
+                }
             }
         }
         else
@@ -61,9 +70,9 @@ public sealed class CreateUserHandler(
                         "No hay una empresa activa disponible para el registro público.");
             }
 
-            role = await userRepository.GetRoleByNameAsync(RoleNames.Patient, cancellationToken)
+            role = await userRepository.GetRoleByIdAsync(roleSettings.PatientRoleId, cancellationToken)
                 ?? throw new PsyLink.Application.Common.Exceptions.ConflictException(
-                    "No está disponible el rol PATIENT para el registro público.");
+                    "El rol PATIENT configurado no existe en la base de datos.");
         }
 
         if (!tenant.Active)
@@ -71,19 +80,34 @@ public sealed class CreateUserHandler(
             throw new PsyLink.Application.Common.Exceptions.BusinessRuleException("No se pueden registrar usuarios en una empresa inactiva.");
         }
 
-        var phone = request.User.PhoneNumber is null
-            ? null
-            : new PhoneNumber
+        var phoneNumbers = new List<string>();
+        if (!string.IsNullOrWhiteSpace(request.User.PhoneNumber))
+        {
+            phoneNumbers.Add(request.User.PhoneNumber.Trim());
+        }
+        if (request.User.PhoneNumbers is not null)
+        {
+            phoneNumbers.AddRange(request.User.PhoneNumbers
+                .Where(number => !string.IsNullOrWhiteSpace(number))
+                .Select(number => number.Trim()));
+        }
+
+        var phones = phoneNumbers
+            .Distinct(StringComparer.Ordinal)
+            .Select(number => new PhoneNumber
             {
                 PhoneId = Guid.NewGuid(),
-                Number = request.User.PhoneNumber
-            };
+                Number = number
+            })
+            .ToList();
+        var primaryPhone = phones.FirstOrDefault();
         var user = new User
         {
             UserId = Guid.NewGuid(),
             TenantId = tenant.TenantId,
-            PhoneId = phone?.PhoneId,
-            Phone = phone,
+            PhoneId = primaryPhone?.PhoneId,
+            Phone = primaryPhone,
+            Phones = phones,
             RoleId = role.RoleId,
             Role = role,
             FirstName = request.User.FirstName,

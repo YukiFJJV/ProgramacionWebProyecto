@@ -1,40 +1,25 @@
-# Tarea: Habilitar auto-registro público de usuarios en `POST /users` sin requerir administrador
+# Tarea: Actualizar regla de negocio de creación de usuarios (`POST /users`) para teléfonos múltiples y rol automático `PATIENT`
 
-## Contexto y diagnóstico
+## Contexto
+Se requiere actualizar el flujo de creación de usuarios (`POST /users` / `CreateUserCommand` y su handler, DTOs, validadores y mapeos/repositorios en `PsyLink.API`, `PsyLink.Application` y `PsyLink.Infrastructure`) con las siguientes reglas de negocio:
 
-En `CreateUserHandler` (`PsyLink.Application.Features.Users.Services.Handlers.CreateUser`), el método `EnsureCompanyAdmin()` bloquea la petición con `ForbiddenException("La operación requiere un administrador de empresa autenticado.")` cuando no hay un administrador de empresa autenticado, y además `Handle` obtiene `tenantId` exclusivamente desde `currentUser.TenantId`.
-
-El objetivo es permitir que cualquier usuario pueda crear su cuenta de forma pública (`POST /users` con `[AllowAnonymous]`) sin depender de un usuario autenticado ni de un rol de administrador, conservando la seguridad y la integridad de datos en PostgreSQL (`PsyLinkDB`).
+1. **Registro público sin exigir administrador:**
+   - Permitir crear el usuario sin requerir un administrador autenticado (manteniendo lo acordado anteriormente sobre no bloquear con `403` por falta de admin).
+2. **Teléfonos ingresados por el usuario (uno o varios) sin requerir `phone_id`:**
+   - El usuario/cliente envía uno o varios números telefónicos en el payload de creación (por ejemplo, una lista/colección de números, o manteniendo compatibilidad si se envían varios).
+   - No se debe exigir un `phone_id` previo de la tabla `phone_numbers`.
+   - Cada número debe insertarse/guardarse en la tabla `phone_numbers` (`id: uuid`, `number: char(8)`), respetando la longitud de 8 caracteres (`char(8)`).
+   - Asociar el o los registros de `phone_numbers` creados al usuario según corresponda en el modelo/relación de `PsyLink`.
+3. **Asignación automática de rol `PATIENT` sin hardcodear:**
+   - Si el `role_id` viene `null` (o no se especifica en la solicitud), asignar automáticamente el rol `PATIENT`.
+   - **RESTRICCIÓN ESTRICTA:** El GUID del rol `PATIENT` (`15949e08-c62c-4529-a2a1-f41bf96b59dd`) **NO debe ir hardcodeado en el código bajo ninguna circunstancia** (ni como constante, ni como literal en `.cs`, ni como fallback quemado en handlers/servicios/tests).
+   - Debe obtenerse de forma configurable (por ejemplo, vía `IConfiguration` / `IOptions` desde `appsettings.json` / `appsettings.Development.json` / variables de entorno, como `Roles:PatientRoleId` o `Identity:PatientRoleId`) y verificarse que exista en la base de datos (`roles`).
 
 ## Cambios requeridos
 
-### 1. `CreateUserHandler.cs`
-
-- **Eliminar o condicionar `EnsureCompanyAdmin()`:**
-  - No lanzar `ForbiddenException` cuando el request sea anónimo / no haya un administrador autenticado.
-  - Si `currentUser` SÍ corresponde a un administrador de empresa autenticado (`currentUser.RoleName == RoleNames.Admin && currentUser.TenantId is not null`), mantener el comportamiento actual de crear el usuario dentro de su `TenantId` con el rol solicitado (excluyendo `SUPER_ADMIN`).
-- **Resolver `TenantId` cuando no haya administrador autenticado:**
-  - Obtener un `TenantId` por defecto desde configuración (por ejemplo `IConfiguration` o una opción tipada como `DefaultTenantId` en `appsettings.json` / variables de entorno) o resolver un tenant activo por defecto si no se configura uno explícito, y validar que el `tenant` exista y esté `Active`.
-  - No lanzar `ConflictException("El usuario autenticado no tiene una empresa asignada.")` cuando la creación sea pública/anónima.
-- **Resolver `RoleId` de forma segura cuando no haya administrador autenticado:**
-  - Si no hay un administrador autenticado, **ignorar** cualquier `RoleId` privilegiado enviado en el request (como `ADMIN` o `SUPER_ADMIN`) y asignar un rol seguro por defecto (por ejemplo `USER` o `PSYCHOLOGIST`, consultándolo desde `userRepository`).
-  - Validar que el rol exista y esté activo antes de crear el `User`.
-- **Mantener validaciones y hashing:**
-  - Conservar la validación de correo duplicado (`userRepository.ExistsByEmailAsync` -> `BusinessRuleException`).
-  - Mantener `PasswordHash = passwordHasher.Hash(request.User.Password)` para que el usuario creado pueda iniciar sesión luego en `POST /auth/login`.
-
-### 2. `UsersController.cs`
-
-- Confirmar que `POST /users` tenga `[AllowAnonymous]`.
-- Mantener protegidos con `[Authorize]` los endpoints de consulta y actualización (`GET /users`, `GET /users/{userId:guid}`, `PUT /users/{userId:guid}`).
-
-### 3. Configuración (`appsettings.json` / `appsettings.Development.json`)
-
-- Agregar una sección o clave clara para el tenant por defecto del registro público (por ejemplo `Registration:DefaultTenantId`), documentando en un comentario o en el README/respuesta qué GUID configurar según la base de datos.
-
-## Criterios de aceptación
-
-1. Enviar `POST /users` sin token de autorización ni rol `ADMIN` crea el usuario en PostgreSQL y responde `201 Created` (nunca `403 Forbidden` por falta de admin).
-2. Un usuario anónimo no puede auto-asignarse `ADMIN` ni `SUPER_ADMIN` vía `roleId`.
-3. El `password_hash` guardado en la base de datos es un hash generado por `passwordHasher.Hash(...)`, permitiendo hacer `POST /auth/login` y recibir `200 OK`.
-4. Los endpoints `GET /users`, `GET /users/{userId:guid}` y `PUT /users/{userId:guid}` siguen requiriendo autenticación/autorización.
+### 1. Configuración (`appsettings.json`, `appsettings.Development.json`, etc.)
+- Agregar una clave de configuración para el rol de paciente, por ejemplo:
+  ```json
+  "RoleSettings": {
+    "PatientRoleId": "15949e08-c62c-4529-a2a1-f41bf96b59dd"
+  }

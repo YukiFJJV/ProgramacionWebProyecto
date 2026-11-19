@@ -24,6 +24,10 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
             .Matches(@"^\d{8}$")
             .When(command => !string.IsNullOrWhiteSpace(command.User.PhoneNumber))
             .WithMessage("El teléfono debe contener exactamente 8 dígitos.");
+        RuleForEach(command => command.User.PhoneNumbers)
+            .NotEmpty()
+            .Matches(@"^\d{8}$")
+            .WithMessage("Cada teléfono debe contener exactamente 8 dígitos.");
         RuleFor(command => command.User.Password)
             .NotEmpty()
             .Matches(PasswordPolicy)

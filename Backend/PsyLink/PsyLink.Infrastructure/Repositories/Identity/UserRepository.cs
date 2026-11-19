@@ -25,6 +25,7 @@ public sealed class UserRepository : IUserRepository
             .IgnoreQueryFilters()
             .Include(u => u.Role)
             .Include(u => u.Phone)
+            .Include(u => u.Phones)
             .Include(u => u.Tenant)
             .AsNoTracking()
             .FirstOrDefaultAsync(
@@ -39,6 +40,7 @@ public sealed class UserRepository : IUserRepository
         return _context.Users
             .Include(u => u.Role)
             .Include(u => u.Phone)
+            .Include(u => u.Phones)
             .Include(u => u.Tenant)
             .AsNoTracking()
             .FirstOrDefaultAsync(
@@ -54,6 +56,7 @@ public sealed class UserRepository : IUserRepository
         return _context.Users
             .Include(user => user.Role)
             .Include(user => user.Phone)
+            .Include(user => user.Phones)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 user => user.UserId == userId && user.TenantId == tenantId,
@@ -68,6 +71,7 @@ public sealed class UserRepository : IUserRepository
         return _context.Users
             .Include(user => user.Role)
             .Include(user => user.Phone)
+            .Include(user => user.Phones)
             .FirstOrDefaultAsync(
                 user => user.UserId == userId && user.TenantId == tenantId,
                 cancellationToken);
@@ -123,6 +127,7 @@ public sealed class UserRepository : IUserRepository
             .Take(pageSize)
             .Include(user => user.Role)
             .Include(user => user.Phone)
+            .Include(user => user.Phones)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

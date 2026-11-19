@@ -17,14 +17,16 @@ public class PhoneNumberConfiguration : IEntityTypeConfiguration<PhoneNumber>
         builder.Property(p => p.PhoneId)
             .HasColumnName("phone_id");
 
+        builder.Property(p => p.UserId)
+            .HasColumnName("user_id");
+
         // Número telefónico
         builder.Property(p => p.Number)
             .HasColumnName("number")
             .HasMaxLength(8)
+            .HasColumnType("character(8)")
             .IsRequired();
 
-        // Evitar números telefónicos duplicados
-        builder.HasIndex(p => p.Number)
-            .IsUnique();
+        builder.HasIndex(p => p.Number);
     }
 }

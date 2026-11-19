@@ -20,5 +20,6 @@ public class User
 
     public Tenant? Tenant { get; set; }
     public PhoneNumber? Phone { get; set; }
+    public ICollection<PhoneNumber> Phones { get; set; } = new List<PhoneNumber>();
     public Role Role { get; set; } = null!;
 }

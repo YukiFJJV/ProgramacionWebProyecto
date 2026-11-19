@@ -61,6 +61,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(u => u.PhoneId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasMany(u => u.Phones)
+            .WithOne(p => p.User)
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Relación con Role (obligatoria)
         builder.HasOne(u => u.Role)
             .WithMany()

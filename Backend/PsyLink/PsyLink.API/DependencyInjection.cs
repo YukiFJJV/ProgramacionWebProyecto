@@ -17,6 +17,10 @@ public static class DependencyInjection
     {
         services.AddSingleton<IPublicRegistrationSettings>(
             new PublicRegistrationSettings(configuration.GetValue<Guid?>("Registration:DefaultTenantId")));
+        var patientRoleId = configuration.GetValue<Guid?>("RoleSettings:PatientRoleId")
+            ?? throw new InvalidOperationException(
+                "La configuraci\u00f3n RoleSettings:PatientRoleId es obligatoria.");
+        services.AddSingleton<IRoleSettings>(new RoleSettings(patientRoleId));
         services.AddOpenApi();
         services.AddProblemDetails();
         services.AddExceptionHandler<ApiExceptionHandler>();
